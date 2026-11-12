@@ -19,7 +19,7 @@
 <article class="room-card compact" th:each="r : ${reservations}" style="margin-bottom:16px">
 <h3 th:text="${'Reservation #'+r.id+' · Room '+r.room.roomNumber}"></h3><p th:text="${r.checkIn+' to '+r.checkOut+' · '+r.status}"></p>
 <p><strong th:text="${'Total: ₱'+r.totalPrice}"></strong></p><p th:text="${'Paid: ₱'+r.amountPaid+' · Balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
-<div th:if="${r.status=='PENDING' and r.amountPaid.compareTo(r.totalPrice)<0}">
+<div th:if="${(r.status=='PENDING' or r.status=='APPROVED') and r.amountPaid.compareTo(r.totalPrice)<0}">
 <p class="small-note" th:if="${r.amountPaid.signum()==0}" th:text="${'Pay 50% down payment: ₱'+r.requiredDownPayment}"></p>
 <p class="small-note" th:if="${r.amountPaid.signum()>0}" th:text="${'Pay remaining balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
 <form class="inline-form" method="post" th:action="@{/customer/reservations/{id}/pay(id=${r.id})}">
