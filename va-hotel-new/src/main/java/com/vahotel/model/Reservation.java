@@ -18,6 +18,10 @@ public class Reservation {
     @Column(nullable=false, precision=12, scale=2) private BigDecimal totalPrice;
     @Column(nullable=false, precision=12, scale=2) private BigDecimal requiredDownPayment;
     @Column(nullable=false, precision=12, scale=2) private BigDecimal amountPaid;
+    private boolean earlyCheckoutRequested=false;
+    private LocalDate requestedCheckOut;
+    private Long requestedUpgradeRoomId;
+    private LocalDate checkedOutAt;
 
     protected Reservation() {}
 
@@ -47,4 +51,12 @@ public class Reservation {
     public String getStatusBeforeCancellation() { return statusBeforeCancellation; }
     public void setStatusBeforeCancellation(String status) { this.statusBeforeCancellation = status; }
     public void addPayment(BigDecimal amount) { this.amountPaid = this.amountPaid.add(amount); }
+    public boolean isEarlyCheckoutRequested(){return earlyCheckoutRequested;}
+    public void setEarlyCheckoutRequested(boolean value){this.earlyCheckoutRequested=value;}
+    public LocalDate getRequestedCheckOut(){return requestedCheckOut;}
+    public void setRequestedCheckOut(LocalDate value){this.requestedCheckOut=value;}
+    public Long getRequestedUpgradeRoomId(){return requestedUpgradeRoomId;}
+    public void setRequestedUpgradeRoomId(Long value){this.requestedUpgradeRoomId=value;}
+    public LocalDate getCheckedOutAt(){return checkedOutAt;}
+    public void setCheckedOutAt(LocalDate value){this.checkedOutAt=value;}
 }
