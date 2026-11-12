@@ -52,6 +52,21 @@ public class PaymentService {
         return record;
     }
 
+
+    @Transactional
+    public PaymentRecord simulateWalkInPayment(Long reservationId, BigDecimal amount, String method) {
+        Reservation reservation = reservations.findById(reservationId).orElseThrow();
+        if (!"PENDING".equals(reservation.getStatus())) throw new IllegalArgumentException("Only pending walk-in reservations can be paid.");
+        if (amount == null || amount.compareTo(reservation.getTotalPrice()) != 0) throw new IllegalArgumentException("Walk-in payment must equal the full reservation total.");
+        if (method == null || !Set.of("ONSITE_SIMULATED_CASH", "ONSITE_SIMULATED_CARD").contains(method)) throw new IllegalArgumentException("Choose simulated cash or card.");
+        String reference = "VA-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        PaymentRecord record = payments.save(new PaymentRecord(reservation, amount, method, reference));
+        reservation.addPayment(amount);
+        reservation.setStatus("PAID");
+        reservations.save(reservation);
+        return record;
+    }
+
     // Backward-compatible method for any older code that still calls this name.
     @Transactional
     public PaymentRecord simulateFullPayment(Long reservationId, BigDecimal amount, String method) {
