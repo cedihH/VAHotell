@@ -1,1 +1,51 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}"></head><body><header><a class="brand" href="/">VA HOTEL</a><nav><a href="/rooms">Rooms</a><a href="/chatbot">Assistant</a><a href="/login">Login</a><a href="/register">Register</a></nav></header><main class="hero"><p class="eyebrow">WELCOME TO VA HOTEL</p><h1>Your stay,<br>made simpler.</h1><p>Browse rooms, request a reservation, and manage your stay in one place.</p><a class="button" href="/rooms">Explore rooms</a></main><footer>VA Hotel · Local development project</footer></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VA Hotel | Welcome Portal</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="portal-page">
+<header class="portal-header">
+  <a class="va-brand" href="/" aria-label="VA Hotel home">
+    <img th:src="@{/images/va-hotel-mark.svg}" alt="VA Hotel logo">
+    <span><strong>VA HOTEL</strong><small>VISION • HOSPITALITY • SERVICE</small></span>
+  </a>
+  <span class="portal-header-note">WELCOME TO YOUR HOTEL MANAGEMENT PORTAL</span>
+</header>
+<main class="portal-main">
+  <section class="portal-intro">
+    <p class="portal-kicker">VISION ACADEMY HOTEL</p>
+    <h1>Welcome to <em>VA Hotel.</em></h1>
+    <p>Select your portal to continue. Each workspace opens in a new tab, so this welcome page stays available.</p>
+  </section>
+  <section class="portal-grid" aria-label="Choose a portal">
+    <a class="portal-card" href="/super-admin/dashboard" target="_blank" rel="noopener">
+      <span class="portal-number">01</span><span class="portal-symbol">✦</span>
+      <span class="portal-card-title">Super Admin</span>
+      <span class="portal-card-desc">Full system access, accounts, settings and oversight.</span>
+      <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
+    </a>
+    <a class="portal-card" href="/onsite-manager/dashboard" target="_blank" rel="noopener">
+      <span class="portal-number">02</span><span class="portal-symbol">⌂</span>
+      <span class="portal-card-title">Onsite Manager</span>
+      <span class="portal-card-desc">Front desk operations, walk-ins and in-person guest services.</span>
+      <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
+    </a>
+    <a class="portal-card" href="/online-manager/dashboard" target="_blank" rel="noopener">
+      <span class="portal-number">03</span><span class="portal-symbol">◎</span>
+      <span class="portal-card-title">Online Manager</span>
+      <span class="portal-card-desc">Online reservations, customer activity and booking management.</span>
+      <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
+    </a>
+    <a class="portal-card" href="/customer/dashboard" target="_blank" rel="noopener">
+      <span class="portal-number">04</span><span class="portal-symbol">♧</span>
+      <span class="portal-card-title">Customer</span>
+      <span class="portal-card-desc">Discover rooms, make reservations and manage your stay.</span>
+      <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
+    </a>
+  </section>
+  <p class="portal-footnote">Your comfort is our vision.</p>
+</main>
+<footer class="portal-footer"><span>VA HOTEL</span><span>LOCAL HOTEL MANAGEMENT SYSTEM</span></footer>
+</body></html>
