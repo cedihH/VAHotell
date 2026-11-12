@@ -24,7 +24,7 @@ public class PaymentService {
     @Transactional
     public PaymentRecord simulatePayment(Long reservationId, BigDecimal amount, String method) {
         Reservation reservation = reservations.findById(reservationId).orElseThrow();
-        if (!"PENDING".equals(reservation.getStatus())) {
+        if (!"PENDING".equals(reservation.getStatus()) && !"APPROVED".equals(reservation.getStatus())) {
             throw new IllegalArgumentException("Only pending reservations can be paid.");
         }
         if (amount == null || amount.signum() <= 0) {
