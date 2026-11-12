@@ -1,5 +1,60 @@
 package com.vahotel.service;
-import com.vahotel.model.*;import com.vahotel.repo.*;import java.math.BigDecimal;import java.util.UUID;import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;
-@Service public class PaymentService {private final PaymentRecordRepository payments;private final ReservationRepository reservations;public PaymentService(PaymentRecordRepository p,ReservationRepository r){payments=p;reservations=r;}
- // Simulation only: requires full outstanding amount; no funds are transferred.
- @Transactional public PaymentRecord simulateFullPayment(Long id,BigDecimal amount,String method){Reservation r=reservations.findById(id).orElseThrow();if(!"PENDING".equals(r.getStatus()))throw new IllegalArgumentException("Only a pending reservation can be paid.");if(amount==null||amount.signum()<=0)throw new IllegalArgumentException("Payment must be positive.");if(method==null||!java.util.Set.of("SIMULATED_CARD","SIMULATED_CASH","ONSITE_SIMULATED_CASH","ONSITE_SIMULATED_CARD").contains(method))throw new IllegalArgumentException("Choose a supported payment method.");BigDecimal due=r.getTotalPrice().subtract(r.getAmountPaid());if(amount.compareTo(due)!=0)throw new IllegalArgumentException("VA Hotel reservations require full payment of the outstanding amount.");PaymentRecord record=payments.save(new PaymentRecord(r,amount,method,UUID.randomUUID().toString()));r.addPayment(amount);r.setStatus("PAID");reservations.save(r);return record;}}
+
+import com.vahotel.model.PaymentRecord;
+import com.vahotel.model.Reservation;
+import com.vahotel.repo.PaymentRecordRepository;
+import com.vahotel.repo.ReservationRepository;
+import java.math.BigDecimal;
+import java.util.Set;
+import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class PaymentService {
+    private final PaymentRecordRepository payments;
+    private final ReservationRepository reservations;
+
+    public PaymentService(PaymentRecordRepository payments, ReservationRepository reservations) {
+        this.payments = payments;
+        this.reservations = reservations;
+    }
+
+    // Local simulation only. No real card or GCash account is charged.
+    @Transactional
+    public PaymentRecord simulatePayment(Long reservationId, BigDecimal amount, String method) {
+        Reservation reservation = reservations.findById(reservationId).orElseThrow();
+        if (!"PENDING".equals(reservation.getStatus())) {
+            throw new IllegalArgumentException("Only pending reservations can be paid.");
+        }
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Payment must be greater than zero.");
+        }
+        if (method == null || !Set.of("SIMULATED_VISA", "SIMULATED_GCASH").contains(method)) {
+            throw new IllegalArgumentException("Choose Visa or GCash simulation.");
+        }
+
+        BigDecimal expected = reservation.getAmountPaid().signum() == 0
+                ? reservation.getRequiredDownPayment()
+                : reservation.getTotalPrice().subtract(reservation.getAmountPaid());
+
+        if (amount.compareTo(expected) != 0) {
+            throw new IllegalArgumentException("Payment amount must be exactly ₱" + expected + ".");
+        }
+
+        String reference = "VA-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        PaymentRecord record = payments.save(new PaymentRecord(reservation, amount, method, reference));
+        reservation.addPayment(amount);
+        if (reservation.getAmountPaid().compareTo(reservation.getTotalPrice()) >= 0) {
+            reservation.setStatus("PAID");
+        }
+        reservations.save(reservation);
+        return record;
+    }
+
+    // Backward-compatible method for any older code that still calls this name.
+    @Transactional
+    public PaymentRecord simulateFullPayment(Long reservationId, BigDecimal amount, String method) {
+        return simulatePayment(reservationId, amount, method);
+    }
+}
