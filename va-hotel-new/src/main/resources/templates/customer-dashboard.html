@@ -26,8 +26,15 @@
 <select name="method" aria-label="Payment method" required><option value="SIMULATED_VISA">Visa (simulation)</option><option value="SIMULATED_GCASH">GCash (simulation)</option></select>
 <button class="button small" type="submit" th:text="${r.amountPaid.signum()==0?'Pay 50% deposit':'Pay balance'}"></button></form></div>
 <p class="small-note muted">Payment is simulated for testing. No real money or bank account is used.</p>
+<a th:href="@{/customer/reservations/{id}/receipt(id=${r.id})}">View / print receipt</a>
+<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/early-checkout(id=${r.id})}"><button class="button secondary small">Request early checkout</button></form>
+<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/extend(id=${r.id})}"><label>New checkout date<input type="date" name="newCheckOut" required></label><button class="button secondary small">Request extension</button></form>
+<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/upgrade(id=${r.id})}"><label>Upgrade room<select name="roomId" required><option th:each="room : ${rooms}" th:if="${room.nightlyPrice.compareTo(r.room.nightlyPrice)>0}" th:value="${room.id}" th:text="${room.roomNumber+' · '+room.roomType+' · ₱'+room.nightlyPrice}"></option></select></label><button class="button secondary small">Request room upgrade</button></form>
+
 <form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button class="button secondary small" type="submit">Request cancellation</button></form>
 </article></section>
+
+<section class="manager-section"><h2>Pencil booking</h2><p>Request a tentative booking for management review.</p><form class="booking-form" method="post" th:action="@{/customer/pencil-booking}"><label>Room<select name="roomId" required><option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.roomNumber+' · '+r.roomType}"></option></select></label><label>Check-in<input type="date" name="checkIn" required></label><label>Check-out<input type="date" name="checkOut" required></label><button class="button" type="submit">Request pencil booking</button></form></section>
 <section class="manager-section"><div class="section-heading"><div><p class="eyebrow">NEED HELP?</p><h2>Contact management</h2></div></div><article class="stat-card">
 <form class="stack-form" method="post" th:action="@{/customer/reports}"><label>Subject<input name="subject" required maxlength="120"></label><label>Message<textarea name="message" required rows="4" maxlength="2000"></textarea></label><button class="button" type="submit">Submit report</button></form>
 </article></section>
