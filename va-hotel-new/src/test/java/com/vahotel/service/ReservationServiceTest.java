@@ -1,0 +1,3 @@
+package com.vahotel.service;
+import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import com.vahotel.model.*;import com.vahotel.repo.ReservationRepository;import java.math.BigDecimal;import java.time.LocalDate;import org.junit.jupiter.api.Test;
+class ReservationServiceTest {@Test void rejectsInvalidDateRange(){ReservationRepository repo=mock(ReservationRepository.class);ReservationService service=new ReservationService(repo);Room room=new Room("101","Standard","Test",new BigDecimal("1000"));Account customer=new Account("a@b.com","hash","A",Role.CUSTOMER,true);assertThrows(IllegalArgumentException.class,()->service.create(customer,room,LocalDate.now().plusDays(1),LocalDate.now().plusDays(1)));verifyNoInteractions(repo);}}

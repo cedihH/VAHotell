@@ -1,0 +1,3 @@
+package com.vahotel.model;
+import jakarta.persistence.*;import java.time.LocalDateTime;
+@Entity @Table(name="otp_tokens") public class OtpToken {@Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;@Column(nullable=false) private String email;@Column(nullable=false) private String codeHash;@Column(nullable=false) private LocalDateTime expiresAt;@Column(nullable=false) private boolean used=false;protected OtpToken(){}public OtpToken(String e,String h,LocalDateTime x){email=e;codeHash=h;expiresAt=x;}public String getEmail(){return email;}public String getCodeHash(){return codeHash;}public LocalDateTime getExpiresAt(){return expiresAt;}public boolean isUsed(){return used;}public void setUsed(boolean v){used=v;}}
