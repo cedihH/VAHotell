@@ -22,6 +22,7 @@ public class Reservation {
     private LocalDate requestedCheckOut;
     private Long requestedUpgradeRoomId;
     private LocalDate checkedOutAt;
+    private LocalDate checkedInAt;
 
     protected Reservation() {}
 
@@ -62,5 +63,7 @@ public class Reservation {
     public Long getRequestedUpgradeRoomId(){return requestedUpgradeRoomId;}
     public void setRequestedUpgradeRoomId(Long value){this.requestedUpgradeRoomId=value;}
     public LocalDate getCheckedOutAt(){return checkedOutAt;}
+    public LocalDate getCheckedInAt(){return checkedInAt;}
+    public void setCheckedInAt(LocalDate value){this.checkedInAt=value;}
     public void setCheckedOutAt(LocalDate value){this.checkedOutAt=value;}
 }
