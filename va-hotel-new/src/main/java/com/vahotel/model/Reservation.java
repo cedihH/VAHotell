@@ -12,21 +12,39 @@ public class Reservation {
     @ManyToOne(optional=false) private Room room;
     @Column(nullable=false) private LocalDate checkIn;
     @Column(nullable=false) private LocalDate checkOut;
-    @Column(nullable=false) private String bookingType; // REGULAR or PENCIL
-    @Column(nullable=false) private String status; // PENDING, PAID, APPROVED, REJECTED, CANCELLED, COMPLETED, EXPIRED
+    @Column(nullable=false) private String bookingType;
+    @Column(nullable=false) private String status;
     private String statusBeforeCancellation;
     @Column(nullable=false, precision=12, scale=2) private BigDecimal totalPrice;
     @Column(nullable=false, precision=12, scale=2) private BigDecimal requiredDownPayment;
     @Column(nullable=false, precision=12, scale=2) private BigDecimal amountPaid;
+
     protected Reservation() {}
-    public Reservation(Account customer,Room room,LocalDate in,LocalDate out,String type,BigDecimal total){
-        this.customer=customer;this.room=room;checkIn=in;checkOut=out;bookingType=type;totalPrice=total;
-        requiredDownPayment="PENCIL".equals(type)?total.multiply(new BigDecimal("0.50")):total;
-        amountPaid=BigDecimal.ZERO;status="PENDING";
+
+    public Reservation(Account customer, Room room, LocalDate in, LocalDate out, String type, BigDecimal total) {
+        this.customer = customer;
+        this.room = room;
+        this.checkIn = in;
+        this.checkOut = out;
+        this.bookingType = type;
+        this.totalPrice = total;
+        this.requiredDownPayment = total.multiply(new BigDecimal("0.50")).setScale(2, java.math.RoundingMode.HALF_UP);
+        this.amountPaid = BigDecimal.ZERO;
+        this.status = "PENDING";
     }
-    public Long getId(){return id;} public Account getCustomer(){return customer;} public Room getRoom(){return room;} public LocalDate getCheckIn(){return checkIn;}
-    public LocalDate getCheckOut(){return checkOut;} public String getStatus(){return status;}
-    public BigDecimal getTotalPrice(){return totalPrice;} public BigDecimal getRequiredDownPayment(){return requiredDownPayment;}
-    public BigDecimal getAmountPaid(){return amountPaid;} public String getBookingType(){return bookingType;}
-    public void setStatus(String s){status=s;} public String getStatusBeforeCancellation(){return statusBeforeCancellation;} public void setStatusBeforeCancellation(String s){statusBeforeCancellation=s;} public void addPayment(BigDecimal a){amountPaid=amountPaid.add(a);}
+
+    public Long getId() { return id; }
+    public Account getCustomer() { return customer; }
+    public Room getRoom() { return room; }
+    public LocalDate getCheckIn() { return checkIn; }
+    public LocalDate getCheckOut() { return checkOut; }
+    public String getStatus() { return status; }
+    public BigDecimal getTotalPrice() { return totalPrice; }
+    public BigDecimal getRequiredDownPayment() { return requiredDownPayment; }
+    public BigDecimal getAmountPaid() { return amountPaid; }
+    public String getBookingType() { return bookingType; }
+    public void setStatus(String status) { this.status = status; }
+    public String getStatusBeforeCancellation() { return statusBeforeCancellation; }
+    public void setStatusBeforeCancellation(String status) { this.statusBeforeCancellation = status; }
+    public void addPayment(BigDecimal amount) { this.amountPaid = this.amountPaid.add(amount); }
 }
