@@ -54,6 +54,7 @@ public class Reservation {
     public String getStatusBeforeCancellation() { return statusBeforeCancellation; }
     public void setStatusBeforeCancellation(String status) { this.statusBeforeCancellation = status; }
     public void addPayment(BigDecimal amount) { this.amountPaid = this.amountPaid.add(amount); }
+    public void setAmountPaid(BigDecimal amount) { this.amountPaid = amount; }
     public boolean isEarlyCheckoutRequested(){return earlyCheckoutRequested;}
     public void setEarlyCheckoutRequested(boolean value){this.earlyCheckoutRequested=value;}
     public LocalDate getRequestedCheckOut(){return requestedCheckOut;}
