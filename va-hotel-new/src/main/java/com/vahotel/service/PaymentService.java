@@ -67,6 +67,27 @@ public class PaymentService {
         return record;
     }
 
+
+    @Transactional
+    public PaymentRecord simulateRefund(Long paymentId, BigDecimal amount) {
+        PaymentRecord record = payments.findById(paymentId).orElseThrow();
+        if (amount == null || amount.signum() <= 0 || amount.compareTo(record.getAmount()) > 0) {
+            throw new IllegalArgumentException("Refund must be positive and cannot exceed the original payment.");
+        }
+        if (record.getRefundAmount() != null && record.getRefundAmount().signum() > 0) {
+            throw new IllegalArgumentException("This payment already has a refund recorded.");
+        }
+        String reference = "RF-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
+        record.recordRefund(amount, reference);
+        Reservation reservation = record.getReservation();
+        reservation.setAmountPaid(reservation.getAmountPaid().subtract(amount).max(BigDecimal.ZERO));
+        if (reservation.getAmountPaid().signum() == 0 && "PAID".equals(reservation.getStatus())) {
+            reservation.setStatus("CANCELLED");
+        }
+        reservations.save(reservation);
+        return payments.save(record);
+    }
+
     // Backward-compatible method for any older code that still calls this name.
     @Transactional
     public PaymentRecord simulateFullPayment(Long reservationId, BigDecimal amount, String method) {
