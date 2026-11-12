@@ -43,6 +43,6 @@ RUNNING IN CODESPACES
 - SQLite database is local at `data/va-hotel.db`; local edits to it are machine/test state and should not normally be committed.
 
 COMMIT HYGIENE
-- `target/` is tracked/generated in this repository and changes after Maven runs. Do not include generated `target/` artifacts in feature commits.
-- `data/va-hotel.db` is local SQLite state and should not be included unless a deliberate migration/sample-data change is requested.
+- Maven `target/` output is ignored by `.gitignore`; it should not appear in source control after the cleanup commit.
+- `data/va-hotel.db` remains a tracked local SQLite database; do not commit local runtime changes unless a deliberate database change is requested.
 - Secrets belong in Codespaces Secrets/environment, never in source control.
