@@ -4,10 +4,10 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VA Hotel | Welcome Portal</title>
 <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<script th:src="@{/js/ui.js}" defer></script></head>
 <body class="portal-page">
 <header class="portal-header">
-  <a class="va-brand" href="/" aria-label="VA Hotel home">
+  <a class="va-brand" th:href="@{/}" aria-label="VA Hotel home">
     <img th:src="@{/images/va-hotel-mark.svg}" alt="VA Hotel logo">
     <span><strong>VA HOTEL</strong><small>VISION • HOSPITALITY • SERVICE</small></span>
   </a>
@@ -20,25 +20,25 @@
     <p>Select your portal to continue. Each workspace opens in a new tab, so this welcome page stays available.</p>
   </section>
   <section class="portal-grid" aria-label="Choose a portal">
-    <a class="portal-card" href="/super-admin/dashboard" target="_blank" rel="noopener">
+    <a class="portal-card" th:href="@{/super-admin/dashboard}" target="_blank" rel="noopener">
       <span class="portal-number">01</span><span class="portal-symbol">✦</span>
       <span class="portal-card-title">Super Admin</span>
       <span class="portal-card-desc">Full system access, accounts, settings and oversight.</span>
       <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
     </a>
-    <a class="portal-card" href="/onsite-manager/dashboard" target="_blank" rel="noopener">
+    <a class="portal-card" th:href="@{/onsite-manager/dashboard}" target="_blank" rel="noopener">
       <span class="portal-number">02</span><span class="portal-symbol">⌂</span>
       <span class="portal-card-title">Onsite Manager</span>
       <span class="portal-card-desc">Front desk operations, walk-ins and in-person guest services.</span>
       <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
     </a>
-    <a class="portal-card" href="/online-manager/dashboard" target="_blank" rel="noopener">
+    <a class="portal-card" th:href="@{/online-manager/dashboard}" target="_blank" rel="noopener">
       <span class="portal-number">03</span><span class="portal-symbol">◎</span>
       <span class="portal-card-title">Online Manager</span>
       <span class="portal-card-desc">Online reservations, customer activity and booking management.</span>
       <span class="portal-enter">ENTER PORTAL <b>↗</b></span>
     </a>
-    <a class="portal-card" href="/customer/dashboard" target="_blank" rel="noopener">
+    <a class="portal-card" th:href="@{/rooms}" target="_blank" rel="noopener" aria-label="Browse VA Hotel rooms">
       <span class="portal-number">04</span><span class="portal-symbol">♧</span>
       <span class="portal-card-title">Customer</span>
       <span class="portal-card-desc">Discover rooms, make reservations and manage your stay.</span>
@@ -47,5 +47,6 @@
   </section>
   <p class="portal-footnote">Your comfort is our vision.</p>
 </main>
+<div th:if="${showChatWidget}" th:replace="~{fragments/chatbot-widget :: widget}"></div>
 <footer class="portal-footer"><span>VA HOTEL</span><span>LOCAL HOTEL MANAGEMENT SYSTEM</span></footer>
 </body></html>

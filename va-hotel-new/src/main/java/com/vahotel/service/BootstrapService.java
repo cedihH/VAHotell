@@ -1,3 +1,70 @@
 package com.vahotel.service;
-import com.vahotel.model.*;import com.vahotel.repo.*;import java.math.BigDecimal;import org.springframework.beans.factory.annotation.Value;import org.springframework.boot.CommandLineRunner;import org.springframework.security.crypto.password.PasswordEncoder;import org.springframework.stereotype.Component;
-@Component public class BootstrapService implements CommandLineRunner {private final AccountRepository accounts;private final RoomRepository rooms;private final PasswordEncoder encoder;@Value("${va.hotel.bootstrap-admin:true}") private boolean enabled;public BootstrapService(AccountRepository a,RoomRepository r,PasswordEncoder e){accounts=a;rooms=r;encoder=e;}@Override public void run(String... args){if(!enabled)return;seedAccount("admin@localhost","Development Super Admin",Role.SUPER_ADMIN);seedAccount("online@localhost","Online Manager",Role.ONLINE_MANAGER);seedAccount("onsite@localhost","On-Site Manager",Role.ONSITE_MANAGER);if(rooms.count()==0){seedRoom("101","Standard","Sample standard room",new BigDecimal("2500"));seedRoom("102","Standard","Sample standard room",new BigDecimal("2500"));seedRoom("103","Standard","Sample standard room",new BigDecimal("2500"));seedRoom("201","Deluxe","Sample deluxe room",new BigDecimal("3500"));seedRoom("202","Deluxe","Sample deluxe room",new BigDecimal("3500"));seedRoom("203","Deluxe","Sample deluxe room",new BigDecimal("3500"));seedRoom("301","Suite","Sample suite room",new BigDecimal("5000"));seedRoom("302","Suite","Sample suite room",new BigDecimal("5000"));seedRoom("303","Suite","Sample suite room",new BigDecimal("5000"));seedRoom("401","Family","Sample family room",new BigDecimal("4500"));seedRoom("402","Family","Sample family room",new BigDecimal("4500"));seedRoom("403","Family","Sample family room",new BigDecimal("4500"));}}private void seedAccount(String email,String name,Role role){if(accounts.findByEmail(email).isEmpty())accounts.save(new Account(email,encoder.encode("ChangeMe123!"),name,role,true));}private void seedRoom(String no,String type,String desc,BigDecimal price){rooms.save(new Room(no,type,desc,price));}}
+
+import com.vahotel.model.Account;
+import com.vahotel.model.Role;
+import com.vahotel.model.Room;
+import com.vahotel.repo.AccountRepository;
+import com.vahotel.repo.RoomRepository;
+import java.math.BigDecimal;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BootstrapService implements CommandLineRunner {
+    private final AccountRepository accounts;
+    private final RoomRepository rooms;
+    private final PasswordEncoder encoder;
+
+    @Value("${va.hotel.bootstrap-demo-accounts:true}")
+    private boolean seedDemoAccounts;
+
+    public BootstrapService(AccountRepository accounts, RoomRepository rooms, PasswordEncoder encoder) {
+        this.accounts = accounts;
+        this.rooms = rooms;
+        this.encoder = encoder;
+    }
+
+    @Override
+    public void run(String... args) {
+        if (seedDemoAccounts) {
+            seedAccount("admin@localhost", "Development Super Admin", Role.SUPER_ADMIN);
+            seedAccount("online@localhost", "Online Manager", Role.ONLINE_MANAGER);
+            seedAccount("onsite@localhost", "On-Site Manager", Role.ONSITE_MANAGER);
+            seedAccount("guest@localhost", "Demo Guest", Role.CUSTOMER);
+        }
+
+        // Seed missing sample rooms individually so existing SQLite files are upgraded too.
+        seedRoom("101", "Standard", "Comfortable standard room with Wi-Fi, air conditioning, and a private bath.", "2500");
+        seedRoom("102", "Standard", "Comfortable standard room with Wi-Fi, air conditioning, and a private bath.", "2500");
+        seedRoom("103", "Standard", "Comfortable standard room with Wi-Fi, air conditioning, and a private bath.", "2500");
+        seedRoom("201", "Deluxe", "Spacious deluxe room with a sitting area, Wi-Fi, and air conditioning.", "3500");
+        seedRoom("202", "Deluxe", "Spacious deluxe room with a sitting area, Wi-Fi, and air conditioning.", "3500");
+        seedRoom("203", "Deluxe", "Spacious deluxe room with a sitting area, Wi-Fi, and air conditioning.", "3500");
+        seedRoom("301", "Suite", "Private suite with a separate lounge, Wi-Fi, and air conditioning.", "5000");
+        seedRoom("302", "Suite", "Private suite with a separate lounge, Wi-Fi, and air conditioning.", "5000");
+        seedRoom("303", "Suite", "Private suite with a separate lounge, Wi-Fi, and air conditioning.", "5000");
+        seedRoom("401", "Family", "Family room with flexible sleeping space, Wi-Fi, and air conditioning.", "4500");
+        seedRoom("402", "Family", "Family room with flexible sleeping space, Wi-Fi, and air conditioning.", "4500");
+        seedRoom("403", "Family", "Family room with flexible sleeping space, Wi-Fi, and air conditioning.", "4500");
+    }
+
+    private void seedAccount(String email, String name, Role role) {
+        accounts.findByEmail(email).orElseGet(() -> {
+            Account account = new Account(email, encoder.encode("ChangeMe123!"), name, role, true);
+            account.setEmailVerified(true);
+            return accounts.save(account);
+        });
+    }
+
+    private void seedRoom(String number, String category, String description, String price) {
+        var existing = rooms.findByRoomNumber(number);
+        if (existing.isEmpty()) {
+            rooms.save(new Room(number, category, description, new BigDecimal(price)));
+        } else if (existing.get().getDescription().startsWith("Sample ")) {
+            existing.get().setDescription(description);
+            rooms.save(existing.get());
+        }
+    }
+}

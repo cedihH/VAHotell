@@ -1,0 +1,48 @@
+VISION ACADEMY HOTEL (VA HOTEL) — CODEX HANDOFF
+Repository: cedihH/VAHotell
+Project directory: va-hotel-new
+Branch at handoff: main
+
+CURRENT STATE
+- Spring Boot / Java 21 / Maven / SQLite application. Codespaces forwards port 8080; application binds to 0.0.0.0 and honors forwarded headers.
+- Customer room finder is filterable/searchable/sortable. Room cards open a details dialog with room description, category features, price, and upcoming reserved dates (no guest details).
+- Guests can browse details without signing in. Date selection and availability checking are only rendered for authenticated customers. Available rooms can be requested; customer dashboard exposes simulated deposit/balance payments and reservation status for manager review.
+- Customer navigation has account links on the left and Dashboard/Browse rooms centered. The dashboard already lists the customer’s reservations and status.
+- Registration progress is Account → Email OTP → Identity review. Login demo-credential text was removed.
+- Mini chatbot appears as a floating panel. Public pages initialize CSRF before rendering the widget to avoid truncated responses.
+- Payment simulation accepts sample Visa/GCash numbers with server-side format validation and does not save the submitted number.
+- Bootstrap updates only room descriptions still marked as "Sample ..."; manager-customized room descriptions are preserved.
+- Current app was started with `mvn -o spring-boot:run` and is running on port 8080 at handoff. If it stops, run that command again or use `./run.sh`.
+
+VALIDATION ALREADY RUN
+- `mvn -o clean test`: passed, 3 tests total (2 email-notification unit tests, 1 reservation-service test).
+- Spring Boot startup completed successfully; public routes `/`, `/rooms`, `/login`, `/register` rendered successfully in prior checks.
+- Guest room page rendered 12 rooms and did not render date-entry controls, including when dates were manually added to the URL.
+- Headless browser verified price-descending sort (top listed price 5000), Family category filter (3 rooms), text search (3 matches), detail dialog opens, no guest date controls, no mobile horizontal overflow at 390px, and no page errors.
+- Forwarded-header redirect was previously verified to use `https://...app.github.dev/login`, not localhost.
+- Authenticated reservation/payment, real SMTP delivery, live reCAPTCHA, and manager action workflows have NOT been end-to-end tested in a browser. Do not report these as fully validated.
+
+REMAINING WORK / WHAT THE NEXT CODEX SHOULD DO
+1. Add and verify the owner-provided Vision Academy building photo. No such photo was found in repository assets. Put it at:
+   `src/main/resources/static/images/vision-academy-building.jpg`
+   The login/register split panel already references this name with a blue overlay fallback. Check crop/readability at desktop and mobile sizes after adding it.
+2. Run authenticated end-to-end customer workflow with the actual Codespaces secrets and test account: signup → email OTP → identity upload → admin approval → login → browse → date availability → reservation → simulated 50% deposit → manager approval → balance payment/receipt email → checkout/status. Use only fictitious Visa/GCash numbers; payments are simulation only.
+3. Verify SMTP delivery in this Codespace using configured secrets, including OTP, reservation-ID email, and payment receipt. Never print or commit secret values. Verify sender display name (`MAIL_NAME`) and email HTML styling in a real inbox.
+4. Verify reCAPTCHA from the actual Codespaces forwarded hostname. Confirm site key domain allowlist includes the Codespaces domain; GitHub account email does not need to match CAPTCHA email. Check login and registration token verification, failure message, and network behavior.
+5. Run role-by-role browser checks for all portal links/actions: customer, onsite manager, online manager, super admin. Confirm each mutation persists and is reflected in the other portals; test denied cross-role access and customer ownership checks.
+6. Check reservation/payment edge cases and concurrency: same-room overlapping reservations, duplicate/double payment submissions, payment above balance, cancellation/refund status transitions, room unavailability updates, and stale date availability. Existing service checks need an end-to-end/transactional concurrency review.
+7. Verify all management functions requested earlier: walk-ins/full onsite payment, check-in/out/early checkout/extensions, approvals/rejections/cancellations/upgrades/room assignment, customer/manager account authorization, identity review, reports, revenue graph/print, payment CSV export, and payment history.
+8. Check chatbot behavior with and without Groq configured. Verify its answer source reflects current room descriptions/prices, refuses to invent availability or private reservation data, and is hidden for authenticated managers.
+9. There is no persistent amenities field on Room. Current detail amenities are category-based display values. If hotel staff need to edit amenities per room, add that to Room persistence and Room Management rather than expanding hardcoded category claims.
+10. Run a final clean build, route crawl, mobile browser check, and inspect logs/browser console after fixes. Current tests are small unit tests, not a complete functional suite.
+
+RUNNING IN CODESPACES
+- Use the Ports tab and open forwarded port 8080 (the devcontainer config auto-forwards and opens it).
+- `mvn clean test`
+- `mvn spring-boot:run` or `./run.sh`
+- SQLite database is local at `data/va-hotel.db`; local edits to it are machine/test state and should not normally be committed.
+
+COMMIT HYGIENE
+- `target/` is tracked/generated in this repository and changes after Maven runs. Do not include generated `target/` artifacts in feature commits.
+- `data/va-hotel.db` is local SQLite state and should not be included unless a deliberate migration/sample-data change is requested.
+- Secrets belong in Codespaces Secrets/environment, never in source control.

@@ -1,1 +1,40 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><title>Customer reports</title><link rel="stylesheet" th:href="@{/css/style.css}"></head><body><main><h1>Customer reports</h1><article class="room" th:each="r:${reports}"><h2 th:text="${r.subject}"></h2><p th:text="${r.customer.fullName+' · '+r.createdAt+' · '+r.status}"></p><p th:text="${r.message}"></p><p th:if="${r.managerReply != null}" th:text="${r.managerReply}"></p><form method="post" th:action="@{/management/reports/{id}/reply(id=${r.id})}"><label>Manager reply<textarea name="reply" required></textarea></label><button>Send reply and resolve</button></form></article></main></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reports and revenue · VA Hotel</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <script th:src="@{/js/ui.js}" defer></script>
+</head>
+<body>
+<header class="nav no-print"><a class="brand" th:href="@{/}">VA HOTEL</a><nav><a th:href="@{/management/reports}">Reports</a><a th:href="@{/management/payments}">Payments</a></nav><form method="post" th:action="@{/logout}"><button class="button small">Logout</button></form></header>
+<main class="page-wrap">
+  <section class="report-heading">
+    <div><p class="eyebrow">MANAGEMENT OVERVIEW</p><h1 class="page-title">Reports and <em>revenue.</em></h1><p class="lead">Six-month net simulated revenue. Refunds are subtracted from the month the payment was recorded.</p></div>
+    <button class="button no-print" type="button" data-print-page>Print report</button>
+  </section>
+  <section class="revenue-panel" aria-labelledby="revenue-title">
+    <div class="revenue-summary"><div><p class="eyebrow">LAST SIX MONTHS</p><h2 id="revenue-title" th:text="${'₱'+#numbers.formatDecimal(revenueTotal,1,'COMMA',2,'POINT')}">₱0.00</h2><p class="muted" th:text="${paymentCount+' recorded payment transactions'}">0 recorded payment transactions</p></div><div class="revenue-key"><span></span>Net simulated revenue</div></div>
+    <div class="revenue-chart" role="img" aria-label="Net revenue by month for the last six months">
+      <div class="revenue-month" th:each="point:${revenueChart}">
+        <strong class="revenue-value" th:text="${'₱'+#numbers.formatDecimal(point.amount,1,'COMMA',0,'POINT')}">₱0</strong>
+        <div class="revenue-track"><div class="revenue-bar" th:style="${'height:'+point.height+'%'}"></div></div>
+        <span th:text="${point.label}">Month</span>
+      </div>
+    </div>
+    <p class="muted revenue-note">For review only: payments and refunds in VA Hotel are simulations. This report does not represent actual funds received.</p>
+  </section>
+  <section class="report-list">
+    <div class="section-heading"><div><p class="eyebrow">CUSTOMER SUPPORT</p><h2>Customer reports</h2></div></div>
+    <div th:if="${#lists.isEmpty(reports)}" class="empty-state"><h2>No customer reports</h2><p>New reports will appear here.</p></div>
+    <article class="report-card" th:each="r:${reports}">
+      <div class="report-meta"><h3 th:text="${r.subject}">Report subject</h3><span class="status" th:text="${r.status}">OPEN</span></div>
+      <p class="muted" th:text="${r.customer.fullName+' · '+r.customer.email+' · '+r.createdAt}"></p>
+      <p class="report-message" th:text="${r.message}"></p>
+      <p class="report-reply" th:if="${r.managerReply != null}" th:text="${'Manager reply: '+r.managerReply}"></p>
+      <form class="no-print" method="post" th:action="@{/management/reports/{id}/reply(id=${r.id})}"><label>Manager reply<textarea name="reply" rows="3" maxlength="2000" required></textarea></label><button class="button" type="submit">Send reply and resolve</button></form>
+    </article>
+  </section>
+</main>
+</body>
+</html>

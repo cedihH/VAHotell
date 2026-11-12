@@ -1,1 +1,20 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><title>Login · VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}"><script src="https://www.google.com/recaptcha/api.js" async defer></script></head><body><main class="narrow"><a class="brand" href="/">VA HOTEL</a><h1>Sign in</h1><form method="post" th:action="@{/login}"><label>Email<input name="username" type="email" required></label><label>Password<input name="password" type="password" required></label><div class="g-recaptcha" th:if="${@environment.getProperty('google.recaptcha.site-key')}" th:attr="data-sitekey=${@environment.getProperty('google.recaptcha.site-key')}"></div><button class="button" type="submit">Login</button><p th:if="${param.error}">Invalid credentials or account is awaiting approval.</p><p th:if="${param.captchaError}">Please complete CAPTCHA.</p></form><p><a href="/register">Create an account</a></p></main></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login · VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}">
+  <script th:if="${@environment.getProperty('va.hotel.captcha.enforce') == 'true' and !#strings.isEmpty(@environment.getProperty('google.recaptcha.site-key')) and !#strings.isEmpty(@environment.getProperty('google.recaptcha.secret-key'))}" src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script th:src="@{/js/ui.js}" defer></script></head>
+<body class="auth-page"><main class="auth-shell">
+  <aside class="auth-visual"><a class="brand" th:href="@{/}"><span class="brand-mark">VA</span><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a><div><p class="eyebrow">A WELCOMING STAY</p><h1>Make room for a better stay.</h1><p>Browse our rooms and choose the stay that feels right. Sign in when you're ready to reserve.</p></div><span class="auth-visual-caption">VISION ACADEMY HOTEL</span></aside>
+  <section class="auth-content"><a class="auth-back" th:href="@{/rooms}">← Browse rooms</a><p class="eyebrow">SECURE SIGN IN</p><h2>Welcome back</h2><p class="muted">Sign in to open your VA Hotel workspace.</p>
+  <form method="post" th:action="@{/login}">
+    <label>Email<input name="username" type="email" autocomplete="username" required></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <div class="g-recaptcha" th:if="${@environment.getProperty('va.hotel.captcha.enforce') == 'true' and !#strings.isEmpty(@environment.getProperty('google.recaptcha.site-key')) and !#strings.isEmpty(@environment.getProperty('google.recaptcha.secret-key'))}" th:attr="data-sitekey=${@environment.getProperty('google.recaptcha.site-key')}"></div>
+    <button class="button" type="submit">Sign in</button>
+    <p class="alert error" th:if="${param.error}">Invalid credentials or this account is awaiting approval.</p>
+    <p class="alert error" th:if="${param.captchaError}">Please complete CAPTCHA.</p>
+  </form>
+  <p class="auth-switch"><a th:href="@{/register}">Create a customer account</a></p><div th:replace="~{fragments/chatbot-widget :: widget}"></div></section>
+</main></body></html>

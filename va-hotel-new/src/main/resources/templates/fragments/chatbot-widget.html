@@ -1,0 +1,21 @@
+<aside class="chat-widget" th:fragment="widget" id="hotel-assistant">
+  <button class="chat-float" type="button" data-chat-toggle aria-expanded="false" aria-controls="hotel-chat-panel">
+    <span class="chat-float-icon" aria-hidden="true">✦</span><span>Ask VA Hotel</span>
+  </button>
+  <section class="chat-panel" id="hotel-chat-panel" data-chat-panel hidden aria-label="VA Hotel assistant">
+    <header class="chat-panel-header"><div><p class="eyebrow">VA HOTEL</p><h2>How can we help?</h2></div><button type="button" class="chat-close" data-chat-close aria-label="Close assistant">×</button></header>
+    <p class="chat-panel-note">Room information comes from the hotel catalog. Availability is checked only for dates you select.</p>
+    <div class="chat-faq" aria-label="Frequently asked questions">
+      <button type="button" data-chat-question="What room types and prices are listed?">Room types &amp; prices</button>
+      <button type="button" data-chat-question="How do reservations and the 50% deposit work?">How booking works</button>
+      <button type="button" data-chat-question="What payment methods can I use?">Payment options</button>
+    </div>
+    <div class="chat-messages" data-chat-messages role="log" aria-live="polite"><p class="chat-message assistant-message">Hello! Ask me about room types, listed prices, reservations, or simulated payments.</p></div>
+    <form method="post" th:action="@{/chatbot}" data-chat-form data-no-action-toast="true">
+      <label class="sr-only" for="hotel-chat-question">Your question</label>
+      <textarea id="hotel-chat-question" name="question" rows="2" maxlength="1000" required placeholder="Type your question…"></textarea>
+      <button class="button" type="submit">Send</button>
+    </form>
+    <p class="chat-panel-footnote">The assistant cannot see private booking records or guarantee live availability.</p>
+  </section>
+</aside>

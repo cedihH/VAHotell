@@ -1,41 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Customer Dashboard | VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body>
-<header class="nav"><a class="brand" href="/">VA HOTEL</a><nav class="main-nav-links"><a href="/rooms">Browse rooms</a><a href="/chatbot">Hotel assistant</a></nav><div class="nav-actions"><form method="post" th:action="@{/logout}"><button class="button small">Logout</button></form></div></header>
-<main class="page-wrap">
-<p class="eyebrow">CUSTOMER PORTAL</p><h1 class="page-title">Your stay, <em>in one place.</em></h1><p class="lead">Book a room, track your reservation, and manage your payments.</p>
-<p class="alert success" th:if="${message}" th:text="${message}"></p><p class="alert error" th:if="${error}" th:text="${error}"></p>
-<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">START A BOOKING</p><h2>Request a reservation</h2></div></div>
-<article class="stat-card"><form class="booking-form" method="post" th:action="@{/customer/reservations}">
-<label>Room<select name="roomId" required><option value="">Choose a room</option><option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.roomNumber+' · '+r.roomType+' · ₱'+r.nightlyPrice+'/night'}"></option></select></label>
-<label>Check-in<input type="date" name="checkIn" required></label><label>Check-out<input type="date" name="checkOut" required></label><button class="button" type="submit">Request reservation</button></form>
-<p class="small-note muted">A 50% down payment is required. The remaining balance can be paid later.</p></article></section>
-<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">YOUR BOOKINGS</p><h2>My reservations</h2></div></div>
-<div th:if="${#lists.isEmpty(reservations)}" class="empty-state"><h2>No reservations yet</h2><p>Your bookings will appear here after you make a request.</p></div>
-<article class="room-card compact" th:each="r : ${reservations}" style="margin-bottom:16px">
-<h3 th:text="${'Reservation #'+r.id+' · Room '+r.room.roomNumber}"></h3><p th:text="${r.checkIn+' to '+r.checkOut+' · '+r.status}"></p>
-<p><strong th:text="${'Total: ₱'+r.totalPrice}"></strong></p><p th:text="${'Paid: ₱'+r.amountPaid+' · Balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
-<div th:if="${(r.status=='PENDING' or r.status=='APPROVED') and r.amountPaid.compareTo(r.totalPrice)<0}">
-<p class="small-note" th:if="${r.amountPaid.signum()==0}" th:text="${'Pay 50% down payment: ₱'+r.requiredDownPayment}"></p>
-<p class="small-note" th:if="${r.amountPaid.signum()>0}" th:text="${'Pay remaining balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
-<form class="inline-form" method="post" th:action="@{/customer/reservations/{id}/pay(id=${r.id})}">
-<select name="method" aria-label="Payment method" required><option value="SIMULATED_VISA">Visa (simulation)</option><option value="SIMULATED_GCASH">GCash (simulation)</option></select>
-<button class="button small" type="submit" th:text="${r.amountPaid.signum()==0?'Pay 50% deposit':'Pay balance'}"></button></form></div>
-<p class="small-note muted">Payment is simulated for testing. No real money or bank account is used.</p>
-<a th:href="@{/customer/reservations/{id}/receipt(id=${r.id})}">View / print receipt</a>
-<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/early-checkout(id=${r.id})}"><button class="button secondary small">Request early checkout</button></form>
-<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/extend(id=${r.id})}"><label>New checkout date<input type="date" name="newCheckOut" required></label><button class="button secondary small">Request extension</button></form>
-<form th:if="${r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/upgrade(id=${r.id})}"><label>Upgrade room<select name="roomId" required><option th:each="room : ${rooms}" th:if="${room.nightlyPrice.compareTo(r.room.nightlyPrice)>0}" th:value="${room.id}" th:text="${room.roomNumber+' · '+room.roomType+' · ₱'+room.nightlyPrice}"></option></select></label><button class="button secondary small">Request room upgrade</button></form>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My VA Hotel · Dashboard</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head>
+<body class="customer-body">
+<header class="nav customer-nav">
+  <div class="customer-nav-side customer-nav-left"><a th:href="@{/customer/contact}">Contact management</a><a th:href="@{/customer/dashboard#notifications}">Notifications <span class="nav-count" th:if="${!#lists.isEmpty(notifications)}" th:text="${#lists.size(notifications)}">0</span></a></div>
+  <nav class="customer-nav-links" aria-label="Customer navigation">
+    <a class="active" th:href="@{/customer/dashboard}">Dashboard</a>
+    <a th:href="@{/rooms}">Browse rooms</a>
+  </nav>
+  <div class="customer-nav-side customer-nav-right"><span class="customer-greeting" th:text="${account.fullName}">Guest</span><form method="post" th:action="@{/logout}"><button class="button small" type="submit">Sign out</button></form><a class="brand customer-nav-brand" th:href="@{/}"><span class="brand-mark">VA</span><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a></div>
+</header>
+<main class="page-wrap customer-dashboard-wrap">
+  <section class="customer-welcome"><div><p class="eyebrow">CUSTOMER DASHBOARD</p><h1 class="page-title">Welcome back, <em th:text="${account.fullName}">Guest</em></h1><p class="lead">Your reservations and payments, together in one place.</p></div><a class="button" th:href="@{/rooms}">Find a room</a></section>
+  <p class="alert success" th:if="${message}" th:text="${message}"></p><p class="alert error" th:if="${error}" th:text="${error}"></p>
 
-<form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button class="button secondary small" type="submit">Request cancellation</button></form>
-</article></section>
+  <section class="manager-section notification-section" id="notifications">
+    <div class="section-heading"><div><p class="eyebrow">YOUR UPDATES</p><h2>Notifications</h2></div><span class="notification-count" th:text="${#lists.size(notifications)+' updates'}">0 updates</span></div>
+    <div class="notification-list" th:if="${!#lists.isEmpty(notifications)}"><article class="notification-item" th:each="notice:${notifications}"><span class="notification-dot" aria-hidden="true"></span><p th:text="${notice}">Update</p></article></div>
+    <div class="empty-state compact-empty" th:if="${#lists.isEmpty(notifications)}"><p>You’re all caught up.</p></div>
+  </section>
 
-<section class="manager-section"><h2>Pencil booking</h2><p>Request a tentative booking for management review.</p><form class="booking-form" method="post" th:action="@{/customer/pencil-booking}"><label>Room<select name="roomId" required><option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.roomNumber+' · '+r.roomType}"></option></select></label><label>Check-in<input type="date" name="checkIn" required></label><label>Check-out<input type="date" name="checkOut" required></label><button class="button" type="submit">Request pencil booking</button></form></section>
-<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">NEED HELP?</p><h2>Contact management</h2></div></div><article class="stat-card">
-<form class="stack-form" method="post" th:action="@{/customer/reports}"><label>Subject<input name="subject" required maxlength="120"></label><label>Message<textarea name="message" required rows="4" maxlength="2000"></textarea></label><button class="button" type="submit">Submit report</button></form>
-</article></section>
-</main></body></html>
+  <section class="manager-section reservations-section" id="reservations">
+    <div class="section-heading"><div><p class="eyebrow">YOUR STAYS</p><h2>Reservations</h2></div><a class="text-link" th:href="@{/rooms}">Browse rooms <span aria-hidden="true">↗</span></a></div>
+    <div class="empty-state" th:if="${#lists.isEmpty(reservations)}"><h3>Your next stay starts here.</h3><p>Browse the rooms and choose your dates. You can check availability before signing in.</p><a class="button" th:href="@{/rooms}">Explore rooms</a></div>
+    <article class="reservation-card" th:each="r:${reservations}">
+      <div class="reservation-card-top"><div><p class="eyebrow" th:text="${'RESERVATION #'+r.id}">RESERVATION</p><h3 th:text="${r.room.roomType+' · Room '+r.room.roomNumber}">Room</h3></div><span class="status-pill" th:classappend="${' status-'+#strings.toLowerCase(r.status)}" th:text="${#strings.replace(r.status,'_',' ')}">Pending</span></div>
+      <div class="reservation-facts"><div><span>Check-in</span><strong th:text="${r.checkIn}">Date</strong></div><div><span>Check-out</span><strong th:text="${r.checkOut}">Date</strong></div><div><span>Total</span><strong th:text="${'₱'+r.totalPrice}">₱0</strong></div></div>
+      <div class="payment-summary"><div><span>Paid</span><strong th:text="${'₱'+r.amountPaid}">₱0</strong></div><div><span>Remaining</span><strong th:text="${'₱'+r.totalPrice.subtract(r.amountPaid)}">₱0</strong></div><progress class="payment-progress" th:value="${r.amountPaid}" th:max="${r.totalPrice}">Payment progress</progress></div>
+      <form th:if="${(r.status=='PENDING' or r.status=='APPROVED') and r.amountPaid.compareTo(r.totalPrice)<0}" class="payment-form" method="post" th:action="@{/customer/reservations/{id}/pay(id=${r.id})}">
+        <div class="payment-due"><span th:if="${r.amountPaid.signum()==0}">50% deposit due now</span><span th:if="${r.amountPaid.signum()>0}">Remaining balance due</span><strong th:if="${r.amountPaid.signum()==0}" th:text="${'₱'+r.requiredDownPayment}">₱0</strong><strong th:if="${r.amountPaid.signum()>0}" th:text="${'₱'+r.totalPrice.subtract(r.amountPaid)}">₱0</strong></div>
+        <div class="payment-inputs"><label>Payment method<select name="method" data-payment-method required><option value="SIMULATED_VISA">Visa (simulation)</option><option value="SIMULATED_GCASH">GCash (simulation)</option></select></label><label><span data-payment-label>Demo card number</span><input name="paymentNumber" type="text" inputmode="numeric" autocomplete="off" maxlength="16" pattern="[0-9]{16}" placeholder="4111111111111111" data-payment-number required></label></div>
+        <p class="simulation-note">Simulation only. Use a sample number—never enter real card or wallet details. No payment number is stored.</p>
+        <button class="button" type="submit" th:text="${r.amountPaid.signum()==0?'Pay 50% deposit':'Pay remaining balance'}">Pay</button>
+      </form>
+      <div class="reservation-actions"><a class="button secondary small" th:href="@{/customer/reservations/{id}/receipt(id=${r.id})}">View receipt</a><form method="post" th:action="@{/customer/reservations/{id}/email-proof(id=${r.id})}"><button class="text-button" type="submit">Email proof</button></form><form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button class="text-button danger-link" type="submit">Request cancellation</button></form></div>
+      <details class="reservation-more" th:if="${r.status=='APPROVED'}"><summary>Request a change to this stay</summary><div class="reservation-change-grid"><form method="post" th:action="@{/customer/reservations/{id}/extend(id=${r.id})}"><label>Request a later checkout<input type="date" name="newCheckOut" required></label><button class="button secondary small" type="submit">Request extension</button></form><form method="post" th:action="@{/customer/reservations/{id}/upgrade(id=${r.id})}"><label>Request a room upgrade<select name="roomId" required><option th:each="room:${rooms}" th:if="${room.nightlyPrice.compareTo(r.room.nightlyPrice)>0}" th:value="${room.id}" th:text="${room.roomType+' · Room '+room.roomNumber+' · ₱'+room.nightlyPrice}"></option></select></label><button class="button secondary small" type="submit">Request upgrade</button></form><form method="post" th:action="@{/customer/reservations/{id}/early-checkout(id=${r.id})}"><button class="text-button" type="submit">Request early checkout</button></form></div></details>
+    </article>
+  </section>
+</main>
+<div th:replace="~{fragments/chatbot-widget :: widget}"></div>
+</body></html>
