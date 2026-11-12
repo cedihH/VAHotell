@@ -48,6 +48,8 @@ public class Reservation {
     public BigDecimal getAmountPaid() { return amountPaid; }
     public String getBookingType() { return bookingType; }
     public void setStatus(String status) { this.status = status; }
+    public void setCheckOut(LocalDate value){this.checkOut=value;}
+    public void setRoom(Room value){this.room=value;}
     public String getStatusBeforeCancellation() { return statusBeforeCancellation; }
     public void setStatusBeforeCancellation(String status) { this.statusBeforeCancellation = status; }
     public void addPayment(BigDecimal amount) { this.amountPaid = this.amountPaid.add(amount); }
