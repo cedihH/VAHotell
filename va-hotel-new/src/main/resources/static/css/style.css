@@ -2425,3 +2425,43 @@ body.registration-page {
     .registration-page .auth-card { padding: 18px 18px; }
     .registration-page .password-rules { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+
+/* VA Hotel identity: royal blue, orange and clean white */
+:root {
+  --forest: #204D9B;
+  --leaf: #F58213;
+  --cream: #F4F7FC;
+  --sand: #EAF0FA;
+  --ink: #172B4D;
+  --muted: #68788F;
+  --line: #DCE4F0;
+  --white: #FFFFFF;
+  --shadow: 0 18px 48px rgba(32, 77, 155, .10);
+}
+body { background: #F7F9FD; color: var(--ink); }
+.nav { background: rgba(255,255,255,.97); border-bottom-color: #DCE4F0; }
+.brand, .eyebrow, .table-action, .auth-switch a { color: #204D9B; }
+.brand-mark { background: #204D9B; color: #fff; }
+.brand small { color: #F58213; }
+.button { background: #204D9B; border-color: #204D9B; color: #fff; }
+.button:hover { background: #173D7D; border-color: #173D7D; }
+.button.secondary { background: #FFF3E8; border-color: #F8C99F; color: #A84F00; }
+.button.secondary:hover { background: #FFE7D2; }
+.hero h1 em, .page-title em, .auth-card h1 em, .section-heading h2 em { color: #F58213; }
+.hero-art { background: #EAF0FA; }
+.section { background: #F7F9FD; }
+.room-card, .stat-card, .auth-card { background: #fff; border-color: #DCE4F0; }
+.price strong, .stat-card strong { color: #204D9B; }
+.closing { background: #204D9B; color: #fff; }
+.closing .eyebrow, .closing h2 em { color: #FFD2A8; }
+.cream-button { background: #F58213; border-color: #F58213; color: #fff; }
+.cream-button:hover { background: #D96C08; color: #fff; }
+.auth-body { background: radial-gradient(ellipse at 15% 15%, #EAF0FA 0, transparent 44%), #F7F9FD; }
+th { background: #EAF0FA; color: #405A80; }
+.status.approved, .status.available { background: #E7F0FF; color: #204D9B; }
+.status.pending, .status.cancellation_requested { background: #FFF1E4; color: #A84F00; }
+footer { background: #fff; border-top-color: #DCE4F0; }
+.booking-form input:focus, .stack-form input:focus, .stack-form textarea:focus {
+  border-color: #F58213; box-shadow: 0 0 0 3px rgba(245,130,19,.14);
+}
