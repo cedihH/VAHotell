@@ -1,1 +1,34 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><title>Customer dashboard</title><link rel="stylesheet" th:href="@{/css/style.css}"></head><body><header><a class="brand" href="/">VA HOTEL</a><nav><a href="/rooms">Rooms</a><a href="/chatbot">Assistant</a><form method="post" th:action="@{/logout}"><button class="link-button">Logout</button></form></nav></header><main><h1>Customer dashboard</h1><p th:if="${message}" th:text="${message}"></p><p th:if="${error}" th:text="${error}"></p><h2>Request a reservation</h2><form method="post" th:action="@{/customer/reservations}"><label>Room<select name="roomId" required><option th:each="r:${rooms}" th:value="${r.id}" th:text="${r.roomNumber+' · '+r.roomType+' · ₱'+r.nightlyPrice+'/night'}"></option></select></label><label>Check-in<input type="date" name="checkIn" required></label><label>Check-out<input type="date" name="checkOut" required></label><button class="button">Request reservation</button></form><h2>My reservations</h2><article class="room" th:each="r:${reservations}"><h3 th:text="${'Reservation #'+r.id+' · '+r.room.roomNumber}"></h3><p th:text="${r.checkIn+' to '+r.checkOut+' · '+r.status}"></p><p th:text="${'Total: ₱'+r.totalPrice+' | Paid: ₱'+r.amountPaid}"></p><form th:if="${r.status=='PENDING' and r.amountPaid.compareTo(r.totalPrice)&lt;0}" method="post" th:action="@{/customer/reservations/{id}/pay(id=${r.id})}"><select name="method"><option value="SIMULATED_CARD">Simulated card</option><option value="SIMULATED_CASH">Simulated cash</option></select><button>Simulate full payment</button></form><form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button>Request cancellation</button></form></article><h2>Contact management</h2><form method="post" th:action="@{/customer/reports}"><label>Subject<input name="subject" required></label><label>Message<textarea name="message" required></textarea></label><button class="button">Submit report</button></form></main></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Dashboard | VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="nav"><a class="brand" href="/">VA HOTEL</a><nav class="main-nav-links"><a href="/rooms">Browse rooms</a><a href="/chatbot">Hotel assistant</a></nav><div class="nav-actions"><form method="post" th:action="@{/logout}"><button class="button small">Logout</button></form></div></header>
+<main class="page-wrap">
+<p class="eyebrow">CUSTOMER PORTAL</p><h1 class="page-title">Your stay, <em>in one place.</em></h1><p class="lead">Book a room, track your reservation, and manage your payments.</p>
+<p class="alert success" th:if="${message}" th:text="${message}"></p><p class="alert error" th:if="${error}" th:text="${error}"></p>
+<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">START A BOOKING</p><h2>Request a reservation</h2></div></div>
+<article class="stat-card"><form class="booking-form" method="post" th:action="@{/customer/reservations}">
+<label>Room<select name="roomId" required><option value="">Choose a room</option><option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.roomNumber+' · '+r.roomType+' · ₱'+r.nightlyPrice+'/night'}"></option></select></label>
+<label>Check-in<input type="date" name="checkIn" required></label><label>Check-out<input type="date" name="checkOut" required></label><button class="button" type="submit">Request reservation</button></form>
+<p class="small-note muted">A 50% down payment is required. The remaining balance can be paid later.</p></article></section>
+<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">YOUR BOOKINGS</p><h2>My reservations</h2></div></div>
+<div th:if="${#lists.isEmpty(reservations)}" class="empty-state"><h2>No reservations yet</h2><p>Your bookings will appear here after you make a request.</p></div>
+<article class="room-card compact" th:each="r : ${reservations}" style="margin-bottom:16px">
+<h3 th:text="${'Reservation #'+r.id+' · Room '+r.room.roomNumber}"></h3><p th:text="${r.checkIn+' to '+r.checkOut+' · '+r.status}"></p>
+<p><strong th:text="${'Total: ₱'+r.totalPrice}"></strong></p><p th:text="${'Paid: ₱'+r.amountPaid+' · Balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
+<div th:if="${r.status=='PENDING' and r.amountPaid.compareTo(r.totalPrice)<0}">
+<p class="small-note" th:if="${r.amountPaid.signum()==0}" th:text="${'Pay 50% down payment: ₱'+r.requiredDownPayment}"></p>
+<p class="small-note" th:if="${r.amountPaid.signum()>0}" th:text="${'Pay remaining balance: ₱'+r.totalPrice.subtract(r.amountPaid)}"></p>
+<form class="inline-form" method="post" th:action="@{/customer/reservations/{id}/pay(id=${r.id})}">
+<select name="method" aria-label="Payment method" required><option value="SIMULATED_VISA">Visa (simulation)</option><option value="SIMULATED_GCASH">GCash (simulation)</option></select>
+<button class="button small" type="submit" th:text="${r.amountPaid.signum()==0?'Pay 50% deposit':'Pay balance'}"></button></form></div>
+<p class="small-note muted">Payment is simulated for testing. No real money or bank account is used.</p>
+<form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button class="button secondary small" type="submit">Request cancellation</button></form>
+</article></section>
+<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">NEED HELP?</p><h2>Contact management</h2></div></div><article class="stat-card">
+<form class="stack-form" method="post" th:action="@{/customer/reports}"><label>Subject<input name="subject" required maxlength="120"></label><label>Message<textarea name="message" required rows="4" maxlength="2000"></textarea></label><button class="button" type="submit">Submit report</button></form>
+</article></section>
+</main></body></html>
