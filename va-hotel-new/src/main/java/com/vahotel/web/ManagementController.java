@@ -25,6 +25,8 @@ import com.vahotel.model.*;import com.vahotel.repo.*;import jakarta.servlet.http
  @PostMapping("/management/reports/{id}/reply") public String reply(@PathVariable Long id,@RequestParam String reply){CustomerReport report=reports.findById(id).orElseThrow();report.setManagerReply(reply);report.setStatus("RESOLVED");reports.save(report);return "redirect:/management/reports";}
  @GetMapping("/management/history") public String history(Model m){m.addAttribute("reservations",reservations.findAll());return "reservation-history-manager";}
 
+
+ @PostMapping("/management/payments/{id}/refund") public String refund(@PathVariable Long id,@RequestParam BigDecimal amount,RedirectAttributes f){try{paymentService.simulateRefund(id,amount);f.addFlashAttribute("message","Refund simulation recorded. No real money was transferred.");}catch(Exception e){f.addFlashAttribute("error",e.getMessage());}return "redirect:/management/payments";}
  @GetMapping("/management/revenue.csv") public void revenueCsv(HttpServletResponse res)throws IOException{res.setContentType("text/csv");res.setHeader("Content-Disposition","attachment; filename=va-hotel-revenue-records.csv");var w=res.getWriter();w.println("Payment ID,Reservation ID,Amount,Method,Status,Created At");for(PaymentRecord p:payments.findAll())w.printf("%d,%d,%s,%s,%s,%s%n",p.getId(),p.getReservation().getId(),p.getAmount(),p.getMethod(),p.getStatus(),p.getCreatedAt());}
 
  @GetMapping("/management/special-requests") public String specialRequests(Model m){m.addAttribute("reservations",reservations.findAll().stream().filter(x->x.getRequestedCheckOut()!=null||x.getRequestedUpgradeRoomId()!=null||x.isEarlyCheckoutRequested()||"PENCIL".equals(x.getBookingType())).toList());return "special-requests";}
