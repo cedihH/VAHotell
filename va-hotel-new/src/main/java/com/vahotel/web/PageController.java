@@ -21,10 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PageController {
     private final RoomRepository rooms;
     private final ReservationRepository reservations;
+    private final com.vahotel.config.CaptchaService captcha;
 
-    public PageController(RoomRepository rooms, ReservationRepository reservations) {
+    public PageController(RoomRepository rooms, ReservationRepository reservations,
+                          com.vahotel.config.CaptchaService captcha) {
         this.rooms = rooms;
         this.reservations = reservations;
+        this.captcha = captcha;
     }
 
     // The portal is the default page. It must render independently of room data.
@@ -65,10 +68,10 @@ public class PageController {
     }
 
     @GetMapping("/login")
-    public String login(@RequestParam(defaultValue = "false") boolean customer, Model model,
-                        com.vahotel.config.CaptchaService captcha) {
+    public String login(@RequestParam(defaultValue = "false") boolean customer, Model model) {
         model.addAttribute("customerPortal", customer);
         model.addAttribute("captchaEnforced", captcha.isEnforced());
+        model.addAttribute("captchaSiteKey", captcha.getSiteKey());
         return "login";
     }
 
