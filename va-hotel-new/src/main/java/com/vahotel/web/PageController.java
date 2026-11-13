@@ -65,7 +65,10 @@ public class PageController {
     }
 
     @GetMapping("/login")
-    public String login() { return "login"; }
+    public String login(@RequestParam(defaultValue = "false") boolean customer, Model model) {
+        model.addAttribute("customerPortal", customer);
+        return "login";
+    }
 
     @GetMapping("/access-denied")
     public String accessDenied(Authentication authentication, Model model) {

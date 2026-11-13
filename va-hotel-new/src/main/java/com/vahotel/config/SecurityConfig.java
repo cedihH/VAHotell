@@ -3,7 +3,7 @@ import org.springframework.context.annotation.*;import org.springframework.http.
 @Configuration public class SecurityConfig {
  @Bean PasswordEncoder passwordEncoder(){return new BCryptPasswordEncoder(12);}
  @Bean SecurityFilterChain securityFilterChain(HttpSecurity http,CaptchaService captcha)throws Exception{
-  http.authorizeHttpRequests(a->a.requestMatchers("/","/rooms","/room-photos/**","/login","/register","/verify-email","/identity","/chatbot","/access-denied","/css/**","/js/**","/images/**","/error").permitAll()
+  http.authorizeHttpRequests(a->a.requestMatchers("/","/rooms","/room-photos/**","/login","/register","/verify-email","/identity","/chatbot","/access-denied","/forgot-password","/reset-password","/css/**","/js/**","/images/**","/error").permitAll()
    .requestMatchers(HttpMethod.GET,"/customer/dashboard").permitAll()
    .requestMatchers("/super-admin/**","/management/customers","/management/customers/**","/management/managers","/management/managers/**").hasRole("SUPER_ADMIN")
    .requestMatchers("/management/reservations/*/checkin","/management/reservations/*/checkout").hasAnyRole("ONSITE_MANAGER","SUPER_ADMIN")

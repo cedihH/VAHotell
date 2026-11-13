@@ -7,10 +7,11 @@
 <script th:src="@{/js/ui.js}" defer></script></head>
 <body class="auth-page"><main class="auth-shell">
   <aside class="auth-visual"><a class="brand" th:href="@{/}"><img class="brand-mark-image" th:src="@{/images/va-hotel-mark.svg}" alt=""><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a><div><p class="eyebrow">A WELCOMING STAY</p><h1>Make room for a better stay.</h1><p>Browse our rooms and choose the stay that feels right. Sign in when you're ready to reserve.</p></div><span class="auth-visual-caption">VISION ACADEMY HOTEL</span></aside>
-  <section class="auth-content"><p class="eyebrow">SECURE SIGN IN</p><h2>Welcome back</h2><p class="muted">Sign in to open your VA Hotel workspace.</p><p class="alert success" th:if="${param.registrationApproved}">Your account has been approved. Sign in to open your customer dashboard.</p>
+  <section class="auth-content"><p class="eyebrow">SECURE SIGN IN</p><h2>Welcome back</h2><p class="muted">Sign in to open your VA Hotel workspace.</p><p class="alert success" th:if="${param.registrationApproved}">Your account has been approved. Sign in to open your customer dashboard.</p><p class="alert success" th:if="${passwordReset}">Your password has been updated. Sign in with your new password.</p>
   <form method="post" th:action="@{/login}">
     <label>Email<input name="username" type="email" autocomplete="username" required></label>
     <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+    <p th:if="${customerPortal}"><a th:href="@{/forgot-password}">Forgot password?</a></p>
     <div class="g-recaptcha" th:if="${@environment.getProperty('va.hotel.captcha.enforce') == 'true' and !#strings.isEmpty(@environment.getProperty('google.recaptcha.site-key')) and !#strings.isEmpty(@environment.getProperty('google.recaptcha.secret-key'))}" th:attr="data-sitekey=${@environment.getProperty('google.recaptcha.site-key')}"></div>
     <button class="button" type="submit">Sign in</button>
     <p class="alert error" th:if="${param.error}">Invalid credentials or this account is awaiting approval.</p>

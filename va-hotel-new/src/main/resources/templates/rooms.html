@@ -7,7 +7,7 @@
 <body class="rooms-page">
 <header class="nav customer-nav room-nav">
   <div class="customer-nav-side customer-nav-left">
-    <th:block th:if="${!customerSignedIn}"><a th:href="@{/login}">Log in</a><a class="nav-signup" th:href="@{/register}">Create account</a></th:block>
+    <th:block th:if="${!customerSignedIn}"><a th:href="@{/login(customer=true)}">Log in</a><a class="nav-signup" th:href="@{/register}">Create account</a></th:block>
     <th:block th:if="${customerSignedIn}"><a th:href="@{/customer/contact}">Contact management</a><a th:href="@{/customer/dashboard#notifications}">Notifications</a></th:block>
   </div>
   <nav class="customer-nav-links" aria-label="Customer navigation">
@@ -57,7 +57,7 @@
             <form th:if="${customerSignedIn}" class="room-date-check date-range-form" data-date-range method="get" th:action="@{/rooms}" th:attr="data-min-check-in=${minimumCheckIn},data-min-check-out=${minimumCheckOut}"><input type="hidden" name="roomId" th:value="${r.id}"><label>Check-in<input type="date" name="checkIn" th:value="${checkIn}" th:min="${minimumCheckIn}" required></label><label>Check-out<input type="date" name="checkOut" th:value="${checkOut}" th:min="${minimumCheckOut}" required></label><button type="submit" class="button secondary">Check these dates</button></form>
             <p class="availability-result" th:if="${datesValid and selectedRoomId != null and selectedRoomId.equals(r.id)}"><span class="availability-pill" th:if="${availability.get(r.id)}">Available for your dates</span><span class="availability-pill unavailable" th:if="${!availability.get(r.id)}">Already reserved for your dates</span></p>
             <form th:if="${customerSignedIn and datesValid and selectedRoomId != null and selectedRoomId.equals(r.id) and availability.get(r.id)}" method="post" class="room-booking-form" th:action="@{/customer/reservations}"><input type="hidden" name="roomId" th:value="${r.id}"><input type="hidden" name="checkIn" th:value="${checkIn}"><input type="hidden" name="checkOut" th:value="${checkOut}"><button class="button" type="submit">Request this room</button><p>Your request will be reviewed by a manager. You can make the simulated 50% down payment from your dashboard.</p></form>
-            <div class="room-signin-actions" th:if="${!customerSignedIn}"><a class="button" th:href="@{/login}">Log in to reserve</a><a class="button secondary" th:href="@{/register}">Create account</a></div>
+            <div class="room-signin-actions" th:if="${!customerSignedIn}"><a class="button" th:href="@{/login(customer=true)}">Log in to reserve</a><a class="button secondary" th:href="@{/register}">Create account</a></div>
           </div>
         </div>
       </dialog>

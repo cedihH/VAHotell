@@ -65,6 +65,13 @@ public class EmailNotificationService {
         return send(recipient, "Verify your VA Hotel email", body, "email verification");
     }
 
+    public boolean sendPasswordReset(String recipient, String resetUrl) {
+        String body = "We received a request to reset your VA Hotel password.\n"
+                + "Use this secure link within 30 minutes to choose a new password:\n" + resetUrl
+                + "\nIf you did not request this, you can ignore this email.";
+        return send(recipient, "Reset your VA Hotel password", body, "password reset");
+    }
+
     public boolean sendRegistrationSubmitted(Account account) {
         String body = "Hello " + account.getFullName() + ",\n"
                 + "Your VA Hotel registration is complete. We received your verified email and identity document.\n"
