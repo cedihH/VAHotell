@@ -1,1 +1,49 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Registration review · VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head><body class="staff-body"><div class="staff-layout"><aside th:replace="~{fragments/management-sidebar :: sidebar('customers')}"></aside><main class="staff-main"><section class="staff-page-heading"><div><p class="eyebrow">CUSTOMER ONBOARDING</p><h1 class="page-title">Registration <em>review.</em></h1><p class="lead">Verify email and identity details before activating a customer account.</p></div></section><div class="staff-alert staff-alert-error" th:if="${error}" th:text="${error}"></div><div class="staff-alert staff-alert-success" th:if="${message}" th:text="${message}"></div><section class="customer-review-grid" th:if="${!#lists.isEmpty(accounts)}"><article class="customer-review-card" th:each="a:${accounts}"><div class="customer-review-top"><span class="customer-avatar" th:text="${#strings.substring(a.fullName,0,1)}">C</span><span class="status-pill" th:classappend="${a.enabled ? ' status-good' : ' status-waiting'}" th:text="${a.enabled ? 'Approved' : 'Awaiting review'}">Status</span></div><h2 th:text="${a.fullName}">Customer</h2><p class="customer-review-email" th:text="${a.email}">email</p><div class="customer-review-checks"><div><span>Email</span><strong th:classappend="${a.emailVerified ? ' text-good' : ' text-waiting'}" th:text="${a.emailVerified ? 'Verified' : 'Not verified'}">Status</strong></div><div><span>Identity</span><a class="staff-inline-link" th:if="${a.identityDocumentPath != null}" th:href="@{/management/customers/{id}/identity(id=${a.id})}">Open document ↗</a><strong class="text-waiting" th:unless="${a.identityDocumentPath != null}">Not submitted</strong></div></div><p class="staff-card-note" th:if="${!a.enabled and (!a.emailVerified or a.identityDocumentPath == null)}">Approval becomes available after the customer verifies their email and submits an identity document.</p><div class="customer-review-actions"><form method="post" th:action="@{/management/customers/{id}/approve(id=${a.id})}" th:if="${!a.enabled and a.emailVerified and a.identityDocumentPath != null}"><button class="button" type="submit">Approve account</button></form><form method="post" th:action="@{/management/customers/{id}/reject(id=${a.id})}" th:if="${!a.enabled}"><button class="button danger-outline" type="submit" data-confirm="Reject and remove this customer registration?">Reject</button></form></div></article></section><div class="staff-empty" th:if="${#lists.isEmpty(accounts)}"><span>◎</span><div><strong>No customer accounts yet</strong><p>New customer registrations will appear here after email verification.</p></div></div></main></div></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registration review · VA Hotel</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script>
+</head>
+<body class="staff-body">
+<div class="staff-layout">
+  <aside th:replace="~{fragments/management-sidebar :: sidebar('customers')}"></aside>
+  <main class="staff-main">
+    <section class="staff-page-heading"><div><p class="eyebrow">CUSTOMER ONBOARDING</p><h1 class="page-title">Registration <em>review.</em></h1><p class="lead">Select a customer to review their submitted details and identity document.</p></div></section>
+    <div class="staff-alert staff-alert-error" th:if="${error}" th:text="${error}"></div>
+    <div class="staff-alert staff-alert-success" th:if="${message}" th:text="${message}"></div>
+    <section class="staff-panel" th:if="${!#lists.isEmpty(accounts)}">
+      <div class="staff-panel-heading"><div><p class="eyebrow">CUSTOMER ACCOUNTS</p><h2>Registration list</h2><p>Passwords are never displayed. Identity files are visible only to authorized staff.</p></div><span class="staff-count"><strong th:text="${#lists.size(accounts)}">0</strong> accounts</span></div>
+      <div class="staff-table-wrap"><table class="staff-table customer-account-table">
+        <thead><tr><th>Customer</th><th>Email status</th><th>Identity</th><th>Account status</th><th></th></tr></thead>
+        <tbody><tr th:each="a:${accounts}">
+          <td><button type="button" class="customer-row-open" data-review-open th:attr="data-review-target=${'customer-review-'+a.id}"><strong th:text="${a.fullName}">Customer</strong><small th:text="${a.email}">email@example.com</small></button></td>
+          <td><span class="status-pill" th:classappend="${a.emailVerified ? ' status-good' : ' status-waiting'}" th:text="${a.emailVerified ? 'Verified' : 'Not verified'}">Email</span></td>
+          <td><span class="staff-muted" th:text="${a.identityDocumentPath != null ? 'Submitted' : 'Not submitted'}">Identity</span></td>
+          <td><span class="status-pill" th:classappend="${a.enabled ? ' status-good' : ' status-waiting'}" th:text="${a.enabled ? 'Approved' : 'Awaiting review'}">Account</span></td>
+          <td><button class="button secondary tiny" type="button" data-review-open th:attr="data-review-target=${'customer-review-'+a.id}">Review details</button></td>
+        </tr></tbody>
+      </table></div>
+    </section>
+    <div class="staff-empty" th:if="${#lists.isEmpty(accounts)}"><span>◎</span><div><strong>No customer accounts yet</strong><p>New customer registrations will appear here after email verification.</p></div></div>
+
+    <dialog class="customer-review-dialog" th:each="a:${accounts}" th:id="${'customer-review-'+a.id}" data-customer-review-dialog th:attr="data-open-on-load=${openCustomerId != null and openCustomerId.equals(a.id)}" aria-label="Customer account review">
+      <div class="customer-review-dialog-heading"><div><p class="eyebrow">ACCOUNT REVIEW</p><h2 th:text="${a.fullName}">Customer</h2></div><button type="button" class="customer-review-dialog-close" data-review-close aria-label="Close account details">×</button></div>
+      <div class="customer-review-dialog-content">
+        <section class="customer-submission-details"><h3>Submitted account details</h3><dl><div><dt>Full name</dt><dd th:text="${a.fullName}">Customer name</dd></div><div><dt>Email</dt><dd th:text="${a.email}">Email</dd></div><div><dt>Email verification</dt><dd th:text="${a.emailVerified ? 'Verified' : 'Not verified'}">Status</dd></div><div><dt>Account status</dt><dd th:text="${a.enabled ? 'Approved and active' : 'Awaiting review'}">Status</dd></div></dl><p class="staff-muted">The password is private and cannot be viewed by staff.</p></section>
+        <section class="customer-identity-preview"><h3>Identity document</h3>
+          <div class="identity-preview-empty" th:if="${a.identityDocumentPath == null}">No identity document has been submitted.</div>
+          <iframe class="identity-preview-pdf" title="Customer identity PDF" th:if="${a.identityDocumentPath != null and #strings.endsWith(#strings.toLowerCase(a.identityDocumentPath),'.pdf')}" th:src="@{/management/customers/{id}/identity(id=${a.id})}"></iframe>
+          <img class="identity-preview-image" th:if="${a.identityDocumentPath != null and !#strings.endsWith(#strings.toLowerCase(a.identityDocumentPath),'.pdf')}" th:src="@{/management/customers/{id}/identity(id=${a.id})}" alt="Submitted customer identity document">
+          <a class="staff-inline-link" th:if="${a.identityDocumentPath != null}" th:href="@{/management/customers/{id}/identity(id=${a.id})}" target="_blank" rel="noopener">Open document in a new tab ↗</a>
+        </section>
+      </div>
+      <div class="customer-review-dialog-actions">
+        <form method="post" th:action="@{/management/customers/{id}/approve(id=${a.id})}" th:if="${!a.enabled and a.emailVerified and a.identityDocumentPath != null}"><button class="button" type="submit">Approve account</button></form>
+        <form method="post" th:action="@{/management/customers/{id}/reject(id=${a.id})}" th:if="${!a.enabled}"><button class="button danger-outline" type="submit" data-confirm="Reject and remove this customer registration?">Reject registration</button></form>
+      </div>
+    </dialog>
+  </main>
+</div>
+</body>
+</html>

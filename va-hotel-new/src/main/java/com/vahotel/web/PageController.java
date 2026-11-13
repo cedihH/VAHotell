@@ -42,7 +42,10 @@ public class PageController {
                         Authentication authentication, Model model, CsrfToken csrfToken) {
         csrfToken.getToken();
         var activeRooms = rooms.findByActiveTrue();
+        LocalDate minimumCheckIn = LocalDate.now(java.time.ZoneId.of("Asia/Manila")).plusDays(1);
         model.addAttribute("rooms", activeRooms);
+        model.addAttribute("minimumCheckIn", minimumCheckIn);
+        model.addAttribute("minimumCheckOut", minimumCheckIn.plusDays(1));
         model.addAttribute("checkIn", checkIn);
         model.addAttribute("checkOut", checkOut);
         model.addAttribute("selectedRoomId", roomId);
