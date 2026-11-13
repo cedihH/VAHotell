@@ -47,6 +47,30 @@
     dialog.showModal();
   }
 
+  const notificationsDialog = document.querySelector("[data-notifications-dialog]");
+  document.querySelector("[data-notifications-open]")?.addEventListener("click", () => notificationsDialog?.showModal());
+  document.querySelector("[data-notifications-close]")?.addEventListener("click", () => notificationsDialog?.close());
+  notificationsDialog?.addEventListener("click", event => {
+    if (event.target === notificationsDialog) notificationsDialog.close();
+  });
+  if (notificationsDialog?.dataset.openOnLoad === "true") notificationsDialog.showModal();
+
+  document.querySelectorAll("[data-review-open]").forEach(button => {
+    button.addEventListener("click", () => {
+      const dialog = document.getElementById(button.dataset.reviewTarget);
+      if (dialog instanceof HTMLDialogElement && !dialog.open) dialog.showModal();
+    });
+  });
+  document.querySelectorAll("[data-review-close]").forEach(button => {
+    button.addEventListener("click", () => button.closest("dialog")?.close());
+  });
+  document.querySelectorAll("[data-customer-review-dialog]").forEach(dialog => {
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close();
+    });
+    if (dialog.dataset.openOnLoad === "true") dialog.showModal();
+  });
+
   function passwordEyeIcon(visible) {
     const ns = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(ns, "svg");
@@ -133,6 +157,29 @@
       toggle.replaceChildren(passwordEyeIcon(visible));
       input.focus();
     });
+  });
+
+  document.querySelectorAll("[data-date-range]").forEach(form => {
+    const checkIn = form.querySelector('input[name="checkIn"]');
+    const checkOut = form.querySelector('input[name="checkOut"]');
+    if (!checkIn || !checkOut) return;
+    const minimumCheckIn = form.dataset.minCheckIn || checkIn.min;
+    const minimumCheckOut = form.dataset.minCheckOut || checkOut.min;
+    if (minimumCheckIn) checkIn.min = minimumCheckIn;
+    const nextDay = value => {
+      const [year, month, day] = value.split("-").map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day + 1));
+      return date.toISOString().slice(0, 10);
+    };
+    const syncCheckoutDate = () => {
+      const afterCheckIn = checkIn.value ? nextDay(checkIn.value) : minimumCheckOut;
+      checkOut.min = minimumCheckOut && afterCheckIn
+        ? (afterCheckIn > minimumCheckOut ? afterCheckIn : minimumCheckOut)
+        : (afterCheckIn || "");
+      if (checkOut.value && checkOut.min && checkOut.value < checkOut.min) checkOut.value = "";
+    };
+    checkIn.addEventListener("change", syncCheckoutDate);
+    syncCheckoutDate();
   });
 
   const signupPassword = document.querySelector("[data-password-check]");

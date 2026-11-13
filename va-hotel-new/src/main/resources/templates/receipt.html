@@ -1,1 +1,49 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><title>Reservation receipt | VA Hotel</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head><body><main class="page-wrap"><h1>VA Hotel payment receipt</h1><section class="stat-card"><p th:text="${'Reservation #'+reservation.id}"></p><p th:text="${'Guest: '+reservation.customer.fullName}"></p><p th:text="${'Room: '+reservation.room.roomNumber+' · '+reservation.room.roomType}"></p><p th:text="${'Stay: '+reservation.checkIn+' to '+reservation.checkOut}"></p><p th:text="${'Booking type: '+reservation.bookingType}"></p><p th:text="${'Total: ₱'+reservation.totalPrice}"></p><p th:text="${'Amount paid: ₱'+reservation.amountPaid}"></p><p th:text="${'Balance: ₱'+reservation.totalPrice.subtract(reservation.amountPaid)}"></p><p th:text="${'Status: '+reservation.status}"></p><button class="button no-print" type="button" data-print-page>Print receipt</button></section><p><a href="/customer/dashboard">Back to customer dashboard</a></p></main></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title th:text="${'Receipt · Reservation #'+reservation.id+' · VA Hotel'}">VA Hotel receipt</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script>
+</head>
+<body class="customer-body receipt-page">
+<main class="receipt-shell">
+  <div class="receipt-actions no-print"><a class="button secondary" th:href="@{/customer/dashboard}">← Dashboard</a><button class="button" type="button" data-print-page>Print receipt</button></div>
+  <article class="receipt-card">
+    <header class="receipt-header">
+      <div class="receipt-brand"><img th:src="@{/images/va-hotel-mark.svg}" alt=""><div><strong>VA HOTEL</strong><small>VISION ACADEMY HOTEL</small></div></div>
+      <div class="receipt-heading"><p class="eyebrow">RESERVATION RECEIPT</p><h1 th:text="${'#'+reservation.id}">#0</h1><span class="status-pill" th:classappend="${' status-'+#strings.toLowerCase(reservation.status)}" th:text="${#strings.replace(reservation.status,'_',' ')}">Pending</span></div>
+    </header>
+    <section class="receipt-section receipt-guest-grid">
+      <div><span>Guest</span><strong th:text="${reservation.customer.fullName}">Guest name</strong><small th:text="${reservation.customer.email}">guest@example.com</small></div>
+      <div><span>Room</span><strong th:text="${reservation.room.roomType+' · Room '+reservation.room.roomNumber}">Standard · Room 101</strong><small th:text="${'Booking type: '+reservation.bookingType}">Booking type</small></div>
+    </section>
+    <section class="receipt-section">
+      <h2>Stay details</h2>
+      <div class="receipt-stay-grid">
+        <div><span>Check-in</span><strong th:text="${#temporals.format(reservation.checkIn,'MMM d, yyyy')}">Date</strong></div>
+        <div><span>Check-out</span><strong th:text="${#temporals.format(reservation.checkOut,'MMM d, yyyy')}">Date</strong></div>
+        <div><span>Length of stay</span><strong th:text="${nights+' '+(nights==1?'night':'nights')}">1 night</strong></div>
+      </div>
+    </section>
+    <section class="receipt-section">
+      <h2>Payment summary</h2>
+      <div class="receipt-total-row"><span>Room rate per night</span><strong th:text="${'₱'+#numbers.formatDecimal(reservation.room.nightlyPrice,1,'COMMA',2,'POINT')}">₱0.00</strong></div>
+      <div class="receipt-total-row"><span>Length of stay</span><strong th:text="${nights+' '+(nights==1?'night':'nights')}">1 night</strong></div>
+      <div class="receipt-total-row"><span>Reservation total</span><strong th:text="${'₱'+#numbers.formatDecimal(reservation.totalPrice,1,'COMMA',2,'POINT')}">₱0.00</strong></div>
+      <div class="receipt-total-row"><span>Amount paid</span><strong th:text="${'₱'+#numbers.formatDecimal(reservation.amountPaid,1,'COMMA',2,'POINT')}">₱0.00</strong></div>
+      <div class="receipt-total-row receipt-balance"><span>Balance remaining</span><strong th:text="${'₱'+#numbers.formatDecimal(balance,1,'COMMA',2,'POINT')}">₱0.00</strong></div>
+      <p class="receipt-simulation-note">Payments on this website are simulations. No real money was collected.</p>
+    </section>
+    <section class="receipt-section receipt-payment-history">
+      <h2>Payment history</h2>
+      <div class="receipt-empty" th:if="${#lists.isEmpty(payments)}">No payments have been recorded for this reservation.</div>
+      <div class="receipt-payment-row" th:each="payment:${payments}">
+        <div><strong th:text="${#temporals.format(payment.createdAt,'MMM d, yyyy · h:mm a')}">Payment date</strong><small th:text="${payment.method}">Payment method</small><small th:text="${'Reference: '+payment.referenceCode}">Reference</small></div>
+        <div class="receipt-payment-amount"><strong th:text="${'₱'+#numbers.formatDecimal(payment.amount,1,'COMMA',2,'POINT')}">₱0.00</strong><small th:text="${#strings.replace(payment.status,'_',' ')}">Payment status</small><small th:if="${payment.refundAmount != null and payment.refundAmount.signum()>0}" th:text="${'Refunded: ₱'+#numbers.formatDecimal(payment.refundAmount,1,'COMMA',2,'POINT')}">Refunded</small></div>
+      </div>
+    </section>
+    <footer class="receipt-footer"><strong>Thank you for choosing VA Hotel.</strong><span>Keep this receipt for your records. Reservation changes are subject to management review.</span></footer>
+  </article>
+</main>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My VA Hotel · Dashboard</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head>
 <body class="customer-body">
 <header class="nav customer-nav">
-  <div class="customer-nav-side customer-nav-left" th:unless="${registrationPending}"><a th:href="@{/customer/contact}">Contact management</a><a th:href="@{/customer/dashboard#notifications}">Notifications <span class="nav-count" th:if="${!#lists.isEmpty(notifications)}" th:text="${#lists.size(notifications)}">0</span></a></div>
+  <div class="customer-nav-side customer-nav-left" th:unless="${registrationPending}"><a th:href="@{/customer/contact}">Contact management</a><button class="customer-notifications-trigger" type="button" data-notifications-open aria-haspopup="dialog" aria-controls="customer-notifications"><span>Notifications</span><span class="nav-count" th:if="${!#lists.isEmpty(notifications)}" th:text="${#lists.size(notifications)}">0</span></button></div>
   <nav class="customer-nav-links" aria-label="Customer navigation">
     <a class="active" th:href="@{/customer/dashboard}">Dashboard</a>
     <a th:href="@{/rooms}">Browse rooms</a>
@@ -11,16 +11,16 @@
   <details class="demo-portal-switcher" sec:authorize="hasRole('SUPER_ADMIN') and hasRole('ONLINE_MANAGER') and hasRole('ONSITE_MANAGER')"><summary>Portal views</summary><div><a th:href="@{/super-admin/dashboard}" target="_blank" rel="noopener">Super Admin</a><a th:href="@{/onsite-manager/dashboard}" target="_blank" rel="noopener">Onsite Manager</a><a th:href="@{/online-manager/dashboard}" target="_blank" rel="noopener">Online Manager</a></div></details>
   <div class="customer-nav-side customer-nav-right"><span class="customer-greeting" th:text="${account.fullName}">Guest</span><form th:unless="${registrationPending}" method="post" th:action="@{/logout}"><button class="button small" type="submit">Sign out</button></form><a class="brand customer-nav-brand" th:href="@{/}"><img class="brand-mark-image" th:src="@{/images/va-hotel-mark.svg}" alt=""><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a></div>
 </header>
+<dialog class="customer-notifications-dialog" id="customer-notifications" data-notifications-dialog th:attr="data-open-on-load=${openNotifications}" aria-labelledby="customer-notifications-title">
+  <div class="customer-notifications-heading"><div><p class="eyebrow">YOUR UPDATES</p><h2 id="customer-notifications-title">Notifications</h2></div><button type="button" class="customer-notifications-close" data-notifications-close aria-label="Close notifications">×</button></div>
+  <p class="customer-notifications-count" th:text="${#lists.size(notifications)+' updates'}">0 updates</p>
+  <div class="notification-list" th:if="${!#lists.isEmpty(notifications)}"><article class="notification-item" th:each="notice:${notifications}"><span class="notification-dot" aria-hidden="true"></span><p th:text="${notice}">Update</p></article></div>
+  <div class="empty-state compact-empty" th:if="${#lists.isEmpty(notifications)}"><p>You’re all caught up.</p></div>
+</dialog>
 <main class="page-wrap customer-dashboard-wrap">
   <section class="customer-welcome" th:if="${registrationPending}"><div><p class="eyebrow">REGISTRATION STATUS</p><h1 class="page-title">Application <em>received.</em></h1><p class="lead" th:text="${'Thanks, '+account.fullName+'. Your email is verified and your identity document has been submitted for review.'}">Your registration is ready for review.</p><p class="lead">You can browse rooms while hotel management reviews your account. Sign in after approval to make a reservation.</p></div><a class="button" th:href="@{/rooms}">Browse rooms</a></section>
   <section class="customer-welcome" th:unless="${registrationPending}"><div><p class="eyebrow">CUSTOMER DASHBOARD</p><h1 class="page-title">Welcome back, <em th:text="${account.fullName}">Guest</em></h1><p class="lead">Your reservations and payments, together in one place.</p></div><a class="button" th:href="@{/rooms}">Find a room</a></section>
   <p class="alert success" th:if="${message}" th:text="${message}"></p><p class="alert error" th:if="${error}" th:text="${error}"></p>
-
-  <section class="manager-section notification-section" id="notifications">
-    <div class="section-heading"><div><p class="eyebrow">YOUR UPDATES</p><h2>Notifications</h2></div><span class="notification-count" th:text="${#lists.size(notifications)+' updates'}">0 updates</span></div>
-    <div class="notification-list" th:if="${!#lists.isEmpty(notifications)}"><article class="notification-item" th:each="notice:${notifications}"><span class="notification-dot" aria-hidden="true"></span><p th:text="${notice}">Update</p></article></div>
-    <div class="empty-state compact-empty" th:if="${#lists.isEmpty(notifications)}"><p>You’re all caught up.</p></div>
-  </section>
 
   <section class="manager-section reservations-section" id="reservations" th:unless="${registrationPending}">
     <div class="section-heading"><div><p class="eyebrow">YOUR STAYS</p><h2>Reservations</h2></div><a class="text-link" th:href="@{/rooms}">Browse rooms <span aria-hidden="true">↗</span></a></div>
@@ -36,7 +36,7 @@
         <button class="button" type="submit" th:text="${r.amountPaid.signum()==0?'Pay 50% deposit':'Pay remaining balance'}">Pay</button>
       </form>
       <div class="reservation-actions"><a class="button secondary small" th:href="@{/customer/reservations/{id}/receipt(id=${r.id})}">View receipt</a><form method="post" th:action="@{/customer/reservations/{id}/email-proof(id=${r.id})}"><button class="text-button" type="submit">Email proof</button></form><form th:if="${r.status=='PENDING' or r.status=='PAID' or r.status=='APPROVED'}" method="post" th:action="@{/customer/reservations/{id}/cancel(id=${r.id})}"><button class="text-button danger-link" type="submit">Request cancellation</button></form></div>
-      <details class="reservation-more" th:if="${r.status=='APPROVED'}"><summary>Request a change to this stay</summary><div class="reservation-change-grid"><form method="post" th:action="@{/customer/reservations/{id}/extend(id=${r.id})}"><label>Request a later checkout<input type="date" name="newCheckOut" required></label><button class="button secondary small" type="submit">Request extension</button></form><form method="post" th:action="@{/customer/reservations/{id}/upgrade(id=${r.id})}"><label>Request a room upgrade<select name="roomId" required><option th:each="room:${rooms}" th:if="${room.nightlyPrice.compareTo(r.room.nightlyPrice)>0}" th:value="${room.id}" th:text="${room.roomType+' · Room '+room.roomNumber+' · ₱'+room.nightlyPrice}"></option></select></label><button class="button secondary small" type="submit">Request upgrade</button></form><form method="post" th:action="@{/customer/reservations/{id}/early-checkout(id=${r.id})}"><button class="text-button" type="submit">Request early checkout</button></form></div></details>
+      <details class="reservation-more" th:if="${r.status=='APPROVED'}"><summary>Request a change to this stay</summary><div class="reservation-change-grid"><form method="post" th:action="@{/customer/reservations/{id}/extend(id=${r.id})}"><label>Request a later checkout<input type="date" name="newCheckOut" th:min="${r.checkOut.plusDays(1)}" required></label><button class="button secondary small" type="submit">Request extension</button></form><form method="post" th:action="@{/customer/reservations/{id}/upgrade(id=${r.id})}"><label>Request a room upgrade<select name="roomId" required><option th:each="room:${rooms}" th:if="${room.nightlyPrice.compareTo(r.room.nightlyPrice)>0}" th:value="${room.id}" th:text="${room.roomType+' · Room '+room.roomNumber+' · ₱'+room.nightlyPrice}"></option></select></label><button class="button secondary small" type="submit">Request upgrade</button></form><form method="post" th:action="@{/customer/reservations/{id}/early-checkout(id=${r.id})}"><button class="text-button" type="submit">Request early checkout</button></form></div></details>
     </article>
   </section>
 </main>
