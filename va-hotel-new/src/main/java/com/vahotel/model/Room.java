@@ -17,9 +17,10 @@ public class Room {
     public Room(String roomNumber,String roomType,String description,BigDecimal nightlyPrice){
         this.roomNumber=roomNumber;this.roomType=roomType;this.description=description;this.nightlyPrice=nightlyPrice;
     }
-    public Long getId(){return id;} public String getRoomNumber(){return roomNumber;}
+    public Long getId(){return id;} public String getRoomNumber(){return roomNumber;} public String getPhotoPath(){return photoPath;}
     public String getRoomType(){return roomType;} public String getDescription(){return description;}
     public BigDecimal getNightlyPrice(){return nightlyPrice;} public boolean isActive(){return active;}
     public void setActive(boolean v){active=v;} public void setNightlyPrice(BigDecimal v){nightlyPrice=v;}
-    public void setDescription(String v){description=v;} public void setPhotoPath(String v){photoPath=v;}
+    public void setDescription(String v){description=v;} public void setRoomNumber(String v){roomNumber=v;}
+    public void setRoomType(String v){roomType=v;} public void setPhotoPath(String v){photoPath=v;}
 }

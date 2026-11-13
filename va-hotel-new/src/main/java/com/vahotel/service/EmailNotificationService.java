@@ -2,6 +2,8 @@ package com.vahotel.service;
 
 import com.vahotel.model.PaymentRecord;
 import com.vahotel.model.Reservation;
+import com.vahotel.model.Account;
+import com.vahotel.model.CustomerReport;
 import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,55 @@ public class EmailNotificationService {
         String body = "Your VA Hotel email verification code is: " + code
                 + "\nThis code expires in 10 minutes.\nDo not share this code with anyone.";
         return send(recipient, "Verify your VA Hotel email", body, "email verification");
+    }
+
+    public boolean sendRegistrationSubmitted(Account account) {
+        String body = "Hello " + account.getFullName() + ",\n"
+                + "Your VA Hotel registration is complete. We received your verified email and identity document.\n"
+                + "Your account is now waiting for hotel management review. We will email you when a decision is made.";
+        return send(account.getEmail(), "VA Hotel registration received", body, "registration review");
+    }
+
+    public boolean sendRegistrationApproved(Account account) {
+        String body = "Hello " + account.getFullName() + ",\n"
+                + "Your VA Hotel customer account has been approved. You can now sign in and request a room.";
+        return send(account.getEmail(), "Your VA Hotel account is approved", body, "registration approval");
+    }
+
+    public boolean sendRegistrationRejected(String name, String recipient) {
+        String body = "Hello " + name + ",\n"
+                + "Hotel management could not approve your VA Hotel registration. Please contact the hotel if you need help.";
+        return send(recipient, "Update on your VA Hotel registration", body, "registration decision");
+    }
+
+    public boolean sendReservationUpdate(Reservation reservation, String update) {
+        String body = reservationDetails(reservation)
+                + "\nUpdate: " + update
+                + "\nCurrent reservation status: " + reservation.getStatus()
+                + "\nThis message was sent because a reservation decision or stay update was recorded.";
+        return send(reservation.getCustomer().getEmail(),
+                "VA Hotel reservation update #" + reservation.getId(), body, "reservation " + reservation.getId());
+    }
+
+    public boolean sendRefundProof(PaymentRecord payment) {
+        Reservation reservation = payment.getReservation();
+        String body = reservationDetails(reservation)
+                + "\nRefund reference: " + payment.getRefundReferenceCode()
+                + "\nRefund amount: PHP " + payment.getRefundAmount().toPlainString()
+                + "\nRefund status: " + payment.getStatus()
+                + "\nRecorded: " + payment.getRefundedAt()
+                + "\nThis is a simulated refund record. No money was transferred.";
+        return send(reservation.getCustomer().getEmail(),
+                "VA Hotel simulated refund update #" + reservation.getId(), body, "reservation " + reservation.getId());
+    }
+
+    public boolean sendCustomerReportReply(CustomerReport report) {
+        String body = "Hello " + report.getCustomer().getFullName() + ",\n"
+                + "Management replied to your message about: " + report.getSubject() + "\n"
+                + report.getManagerReply() + "\n"
+                + "Your message is now marked as resolved. Reply to hotel management if you need further help.";
+        return send(report.getCustomer().getEmail(), "VA Hotel replied to your message", body,
+                "customer message " + report.getId());
     }
 
     public boolean isConfigured() {

@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My VA Hotel · Dashboard</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head>
 <body class="customer-body">
 <header class="nav customer-nav">
-  <div class="customer-nav-side customer-nav-left"><a th:href="@{/customer/contact}">Contact management</a><a th:href="@{/customer/dashboard#notifications}">Notifications <span class="nav-count" th:if="${!#lists.isEmpty(notifications)}" th:text="${#lists.size(notifications)}">0</span></a></div>
+  <div class="customer-nav-side customer-nav-left" th:unless="${registrationPending}"><a th:href="@{/customer/contact}">Contact management</a><a th:href="@{/customer/dashboard#notifications}">Notifications <span class="nav-count" th:if="${!#lists.isEmpty(notifications)}" th:text="${#lists.size(notifications)}">0</span></a></div>
   <nav class="customer-nav-links" aria-label="Customer navigation">
     <a class="active" th:href="@{/customer/dashboard}">Dashboard</a>
     <a th:href="@{/rooms}">Browse rooms</a>
   </nav>
-  <div class="customer-nav-side customer-nav-right"><span class="customer-greeting" th:text="${account.fullName}">Guest</span><form method="post" th:action="@{/logout}"><button class="button small" type="submit">Sign out</button></form><a class="brand customer-nav-brand" th:href="@{/}"><span class="brand-mark">VA</span><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a></div>
+  <details class="demo-portal-switcher" sec:authorize="hasRole('SUPER_ADMIN') and hasRole('ONLINE_MANAGER') and hasRole('ONSITE_MANAGER')"><summary>Portal views</summary><div><a th:href="@{/super-admin/dashboard}" target="_blank" rel="noopener">Super Admin</a><a th:href="@{/onsite-manager/dashboard}" target="_blank" rel="noopener">Onsite Manager</a><a th:href="@{/online-manager/dashboard}" target="_blank" rel="noopener">Online Manager</a></div></details>
+  <div class="customer-nav-side customer-nav-right"><span class="customer-greeting" th:text="${account.fullName}">Guest</span><form th:unless="${registrationPending}" method="post" th:action="@{/logout}"><button class="button small" type="submit">Sign out</button></form><a class="brand customer-nav-brand" th:href="@{/}"><img class="brand-mark-image" th:src="@{/images/va-hotel-mark.svg}" alt=""><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a></div>
 </header>
 <main class="page-wrap customer-dashboard-wrap">
-  <section class="customer-welcome"><div><p class="eyebrow">CUSTOMER DASHBOARD</p><h1 class="page-title">Welcome back, <em th:text="${account.fullName}">Guest</em></h1><p class="lead">Your reservations and payments, together in one place.</p></div><a class="button" th:href="@{/rooms}">Find a room</a></section>
+  <section class="customer-welcome" th:if="${registrationPending}"><div><p class="eyebrow">REGISTRATION STATUS</p><h1 class="page-title">Application <em>received.</em></h1><p class="lead" th:text="${'Thanks, '+account.fullName+'. Your email is verified and your identity document has been submitted for review.'}">Your registration is ready for review.</p><p class="lead">You can browse rooms while hotel management reviews your account. Sign in after approval to make a reservation.</p></div><a class="button" th:href="@{/rooms}">Browse rooms</a></section>
+  <section class="customer-welcome" th:unless="${registrationPending}"><div><p class="eyebrow">CUSTOMER DASHBOARD</p><h1 class="page-title">Welcome back, <em th:text="${account.fullName}">Guest</em></h1><p class="lead">Your reservations and payments, together in one place.</p></div><a class="button" th:href="@{/rooms}">Find a room</a></section>
   <p class="alert success" th:if="${message}" th:text="${message}"></p><p class="alert error" th:if="${error}" th:text="${error}"></p>
 
   <section class="manager-section notification-section" id="notifications">
@@ -20,7 +22,7 @@
     <div class="empty-state compact-empty" th:if="${#lists.isEmpty(notifications)}"><p>You’re all caught up.</p></div>
   </section>
 
-  <section class="manager-section reservations-section" id="reservations">
+  <section class="manager-section reservations-section" id="reservations" th:unless="${registrationPending}">
     <div class="section-heading"><div><p class="eyebrow">YOUR STAYS</p><h2>Reservations</h2></div><a class="text-link" th:href="@{/rooms}">Browse rooms <span aria-hidden="true">↗</span></a></div>
     <div class="empty-state" th:if="${#lists.isEmpty(reservations)}"><h3>Your next stay starts here.</h3><p>Browse the rooms and choose your dates. You can check availability before signing in.</p><a class="button" th:href="@{/rooms}">Explore rooms</a></div>
     <article class="reservation-card" th:each="r:${reservations}">

@@ -11,4 +11,5 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long>{
  long countOverlaps(@Param("room") Room room,@Param("inDate") LocalDate inDate,@Param("outDate") LocalDate outDate);
  List<Reservation> findByCustomerIdOrderByCheckInDesc(Long customerId);
  List<Reservation> findByRoom_IdAndStatusInOrderByCheckInAsc(Long roomId, List<String> statuses);
+ boolean existsByRoom_Id(Long roomId);
 }

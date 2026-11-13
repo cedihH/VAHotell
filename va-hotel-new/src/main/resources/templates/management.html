@@ -1,7 +1,51 @@
-<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VA Hotel Management</title><link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script></head><body>
-<header class="nav"><a class="brand" th:href="@{/}"><span class="brand-mark">VA</span><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a><div class="nav-actions"><form method="post" th:action="@{/logout}"><button class="button small" type="submit">Logout</button></form></div></header>
-<main class="page-wrap manager-page"><p class="eyebrow">OPERATIONS</p><h1 class="page-title">Management dashboard</h1><p class="lead">A clear view of today’s hotel operations and the tools for your role.</p>
-<section class="stats-grid"><article class="stat-card"><p class="eyebrow">CUSTOMER ACCOUNTS</p><h2 th:text="${pendingCustomers}">0</h2><p>Awaiting approval</p></article><article class="stat-card"><p class="eyebrow">RESERVATIONS</p><h2 th:text="${pendingReservations}">0</h2><p>Requests needing review</p></article></section>
-<section class="manager-section"><div class="section-heading"><div><p class="eyebrow">WORKSPACES</p><h2>Hotel operations</h2></div></div><nav class="manager-links" aria-label="Management workspaces">
-<a class="manager-link" th:href="@{/management/customers}" sec:authorize="hasRole('SUPER_ADMIN')">Customer and identity review <b>↗</b></a><a class="manager-link" th:href="@{/management/managers}" sec:authorize="hasRole('SUPER_ADMIN')">Manager accounts <b>↗</b></a><a class="manager-link" th:href="@{/management/walkins}" sec:authorize="hasAnyRole('ONSITE_MANAGER','SUPER_ADMIN')">Walk-in booking <b>↗</b></a><a class="manager-link" th:href="@{/management/reports}">Reports and revenue <b>↗</b></a><a class="manager-link" th:href="@{/management/rooms}">Room management <b>↗</b></a><a class="manager-link" th:href="@{/management/reservations}" sec:authorize="hasAnyRole('ONLINE_MANAGER','SUPER_ADMIN')">Online reservation approvals <b>↗</b></a><a class="manager-link" th:href="@{/management/history}">Reservation history <b>↗</b></a><a class="manager-link" th:href="@{/management/special-requests}">Special reservation requests <b>↗</b></a><a class="manager-link" th:href="@{/management/payments}">Payment records <b>↗</b></a><a class="manager-link" th:href="@{/management/reports.csv}">Export reservation report CSV <b>↓</b></a><a class="manager-link" th:href="@{/management/revenue.csv}">Export payment and revenue CSV <b>↓</b></a>
-</nav></section></main></body></html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VA Hotel · Staff overview</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"><script th:src="@{/js/ui.js}" defer></script>
+</head>
+<body class="staff-body">
+<div class="staff-layout">
+  <aside th:replace="~{fragments/management-sidebar :: sidebar('overview')}"></aside>
+  <main class="staff-main manager-page">
+    <section class="staff-page-heading">
+      <div>
+        <p class="eyebrow">OPERATIONS</p>
+        <h1 class="page-title" th:if="${isSuperAdmin}">Registration <em>review.</em></h1>
+        <h1 class="page-title" th:if="${isOnlineManager}">Online guest <em>operations.</em></h1>
+        <h1 class="page-title" th:if="${isOnsiteManager}">Front desk <em>operations.</em></h1>
+        <p class="lead" th:if="${isSuperAdmin}">Review customer registrations and reservation decisions, then manage hotel workspaces.</p>
+        <p class="lead" th:if="${isOnlineManager}">Track online guest activity, reservation history, and payment records.</p>
+        <p class="lead" th:if="${isOnsiteManager}">Handle walk-in guests, room readiness, and front desk stay operations.</p>
+      </div>
+      <div class="staff-date"><span>LOCAL DATE</span><strong th:text="${#temporals.format(today, 'MMM d, yyyy')}">Today</strong></div>
+    </section>
+
+    <section class="staff-stat-grid">
+      <article class="staff-stat-card staff-stat-primary" th:if="${isSuperAdmin}"><span class="staff-stat-icon">◎</span><div><p>Accounts awaiting review</p><strong th:text="${pendingCustomers}">0</strong><a th:href="@{/management/customers}">Open registration review <span>→</span></a></div></article>
+      <article class="staff-stat-card" th:if="${isSuperAdmin}"><span class="staff-stat-icon">▦</span><div><p>Rooms available to guests</p><strong th:text="${activeRooms}">0</strong><a th:href="@{/management/rooms}">Manage room listings <span>→</span></a></div></article>
+      <article class="staff-stat-card" th:if="${isSuperAdmin}"><span class="staff-stat-icon">◷</span><div><p>Reservations needing decision</p><strong th:text="${pendingReservations}">0</strong><a th:href="@{/management/reservations}">Review reservations <span>→</span></a></div></article>
+      <article class="staff-stat-card staff-stat-primary" th:if="${isOnlineManager}"><span class="staff-stat-icon">◷</span><div><p>Online reservations to monitor</p><strong th:text="${pendingReservations}">0</strong><a th:href="@{/management/history}">View reservation history <span>→</span></a></div></article>
+      <article class="staff-stat-card staff-stat-primary" th:if="${isOnsiteManager}"><span class="staff-stat-icon">▦</span><div><p>Rooms ready for guests</p><strong th:text="${activeRooms}">0</strong><a th:href="@{/management/walkins}">Open walk-in booking <span>→</span></a></div></article>
+    </section>
+
+    <section class="staff-panel" th:if="${isSuperAdmin}">
+      <div class="staff-panel-heading"><div><p class="eyebrow">CUSTOMER ONBOARDING</p><h2>Registration review queue</h2><p>Confirm email verification and review the identity document before approval.</p></div><a class="button secondary" th:href="@{/management/customers}">View all registrations</a></div>
+      <div class="staff-table-wrap" th:if="${!#lists.isEmpty(reviewAccounts)}"><table class="staff-table"><thead><tr><th>Customer</th><th>Email verification</th><th>Identity document</th><th>Next step</th></tr></thead><tbody><tr th:each="a:${reviewAccounts}"><td><strong th:text="${a.fullName}">Customer</strong><small th:text="${a.email}">email</small></td><td><span class="status-pill" th:classappend="${a.emailVerified ? ' status-good' : ' status-waiting'}" th:text="${a.emailVerified ? 'Verified' : 'Not verified'}">Status</span></td><td><a class="staff-inline-link" th:if="${a.identityDocumentPath != null}" th:href="@{/management/customers/{id}/identity(id=${a.id})}">View document ↗</a><span class="staff-muted" th:unless="${a.identityDocumentPath != null}">Not submitted</span></td><td><span class="staff-muted" th:if="${!a.emailVerified or a.identityDocumentPath == null}">Awaiting customer</span><a class="staff-inline-link" th:if="${a.emailVerified and a.identityDocumentPath != null}" th:href="@{/management/customers}">Review account →</a></td></tr></tbody></table></div>
+      <div class="staff-empty" th:if="${#lists.isEmpty(reviewAccounts)}"><span>✓</span><div><strong>All caught up</strong><p>There are no customer registrations awaiting review.</p></div></div>
+    </section>
+
+    <section class="staff-panel staff-workspace-panel"><div class="staff-panel-heading"><div><p class="eyebrow">WORKSPACES</p><h2>Hotel operations</h2></div></div>
+      <div class="staff-quick-links">
+        <a th:href="@{/management/rooms}"><span>▦</span><strong>Room management</strong><small>Update rooms, photos, and availability</small><b>→</b></a>
+        <a th:href="@{/management/reports}"><span>▥</span><strong>Reports and revenue</strong><small>View performance and customer reports</small><b>→</b></a>
+        <a th:href="@{/management/history}"><span>◷</span><strong>Reservation history</strong><small>Review guest stays and status</small><b>→</b></a>
+        <a th:href="@{/management/special-requests}"><span>◇</span><strong>Special requests</strong><small>Handle changes and guest requests</small><b>→</b></a>
+        <a th:href="@{/management/payments}"><span>₱</span><strong>Payment records</strong><small>Review payments and refunds</small><b>→</b></a>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

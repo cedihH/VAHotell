@@ -64,6 +64,20 @@ public class PageController {
     @GetMapping("/login")
     public String login() { return "login"; }
 
+    @GetMapping("/access-denied")
+    public String accessDenied(Authentication authentication, Model model) {
+        String destination = "/";
+        if (authentication != null) {
+            var roles = authentication.getAuthorities().stream().map(org.springframework.security.core.GrantedAuthority::getAuthority).collect(java.util.stream.Collectors.toSet());
+            if (roles.contains("ROLE_SUPER_ADMIN")) destination = "/super-admin/dashboard";
+            else if (roles.contains("ROLE_ONLINE_MANAGER")) destination = "/online-manager/dashboard";
+            else if (roles.contains("ROLE_ONSITE_MANAGER")) destination = "/onsite-manager/dashboard";
+            else if (roles.contains("ROLE_CUSTOMER")) destination = "/customer/dashboard";
+        }
+        model.addAttribute("dashboardUrl", destination);
+        return "access-denied";
+    }
+
     private Map<Long, Boolean> availability(java.util.List<Room> activeRooms, LocalDate in, LocalDate out, boolean datesValid) {
         Map<Long, Boolean> result = new LinkedHashMap<>();
         for (Room room : activeRooms) result.put(room.getId(), datesValid && reservations.countOverlaps(room, in, out) == 0);

@@ -14,12 +14,12 @@
     <a th:href="@{/customer/dashboard}">Dashboard</a>
     <a class="active" th:href="@{/rooms}">Browse rooms</a>
   </nav>
-  <a class="brand customer-nav-brand" th:href="@{/}"><span class="brand-mark">VA</span><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a>
+  <a class="brand customer-nav-brand" th:href="@{/}"><img class="brand-mark-image" th:src="@{/images/va-hotel-mark.svg}" alt=""><span>VA HOTEL<small>VISION ACADEMY HOTEL</small></span></a>
 </header>
 <main class="page-wrap rooms-wrap">
-  <section class="rooms-intro"><p class="eyebrow">VISION ACADEMY HOTEL</p><h1 class="page-title">Find your <em>room.</em></h1><p class="lead">Explore room details and upcoming reserved dates. Sign in to check your dates and request a reservation; management will review it before confirming your stay.</p></section>
+  <section class="rooms-intro"><p class="eyebrow">VISION ACADEMY HOTEL</p><h1 class="page-title">Find your <em>room.</em></h1></section>
   <section class="room-tools" aria-label="Find a room">
-    <label class="room-search">Search rooms<input type="search" data-room-search placeholder="Room number, category, or description"></label>
+    <label class="room-search">Search rooms<input type="search" data-room-search placeholder="e.g. Room 201, Deluxe, or quiet room"></label>
     <label>Category<select data-room-category><option value="">All categories</option><option>Standard</option><option>Deluxe</option><option>Suite</option><option>Family</option></select></label>
     <label>Sort by<select data-room-sort><option value="recommended">Recommended</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="room-asc">Room number</option><option value="category">Category</option></select></label>
     <label th:if="${customerSignedIn}" class="room-availability-filter">Availability<select data-room-availability th:attr="data-dates-valid=${datesValid}"><option value="all">All rooms</option><option value="available">Available for my dates</option><option value="unavailable">Reserved for my dates</option></select></label>
@@ -31,10 +31,12 @@
     <div class="room-listing" th:each="r:${rooms}" data-room-listing th:attr="data-category=${r.roomType},data-price=${r.nightlyPrice},data-room=${r.roomNumber},data-search=${r.roomType+' '+r.roomNumber+' '+r.description},data-available=${datesValid ? availability.get(r.id) : 'unknown'}">
       <article class="room-card public-room-card">
         <button type="button" class="room-card-trigger" th:attr="aria-controls=${'room-detail-'+r.id},aria-label=${'View details for '+r.roomType+' room '+r.roomNumber}">
-          <img class="room-photo" th:if="${r.roomType=='Standard'}" th:src="@{/images/rooms/standard.jpg}" alt="Standard room interior">
-          <img class="room-photo" th:if="${r.roomType=='Deluxe'}" th:src="@{/images/rooms/deluxe.jpg}" alt="Deluxe room interior">
-          <img class="room-photo" th:if="${r.roomType=='Suite'}" th:src="@{/images/rooms/suite.jpg}" alt="Suite room interior">
-          <img class="room-photo" th:if="${r.roomType=='Family'}" th:src="@{/images/rooms/family.jpg}" alt="Family room interior">
+          <img class="room-photo" th:if="${r.photoPath != null}" th:src="@{/room-photos/{id}(id=${r.id})}" th:alt="${'Room '+r.roomNumber+' photo'}">
+          <img class="room-photo" th:if="${r.photoPath == null and r.roomType=='Standard'}" th:src="@{/images/rooms/standard.jpg}" alt="Standard room interior">
+          <img class="room-photo" th:if="${r.photoPath == null and r.roomType=='Deluxe'}" th:src="@{/images/rooms/deluxe.jpg}" alt="Deluxe room interior">
+          <img class="room-photo" th:if="${r.photoPath == null and r.roomType=='Suite'}" th:src="@{/images/rooms/suite.jpg}" alt="Suite room interior">
+          <img class="room-photo" th:if="${r.photoPath == null and r.roomType=='Family'}" th:src="@{/images/rooms/family.jpg}" alt="Family room interior">
+          <img class="room-photo" th:if="${r.photoPath == null and r.roomType!='Standard' and r.roomType!='Deluxe' and r.roomType!='Suite' and r.roomType!='Family'}" th:src="@{/images/rooms/standard.jpg}" alt="Room interior placeholder">
           <span class="room-info"><span class="public-room-heading"><span><span class="eyebrow" th:text="${r.roomType}">Category</span><strong class="room-card-name" th:text="${'Room '+r.roomNumber}">Room</strong></span><span class="availability-pill" th:if="${datesValid and availability.get(r.id)}">Available</span><span class="availability-pill unavailable" th:if="${datesValid and !availability.get(r.id)}">Reserved</span><span class="availability-pill date-needed" th:if="${!datesValid}">View details</span></span>
           <span class="room-description" th:text="${r.description}">Room description</span>
           <span class="public-room-footer"><span class="price"><strong th:text="${'₱'+r.nightlyPrice}">Price</strong><small>per night</small></span><span class="room-open-prompt">Room details <span aria-hidden="true">↗</span></span></span></span>
@@ -43,10 +45,12 @@
       <dialog class="room-detail-dialog" th:id="${'room-detail-'+r.id}" data-room-detail-dialog th:attr="data-open-on-load=${selectedRoomId != null and selectedRoomId.equals(r.id)}">
         <div class="room-detail-layout">
           <button type="button" class="room-detail-close" data-room-close aria-label="Close room details">×</button>
-          <img class="room-detail-photo" th:if="${r.roomType=='Standard'}" th:src="@{/images/rooms/standard.jpg}" alt="Standard room interior">
-          <img class="room-detail-photo" th:if="${r.roomType=='Deluxe'}" th:src="@{/images/rooms/deluxe.jpg}" alt="Deluxe room interior">
-          <img class="room-detail-photo" th:if="${r.roomType=='Suite'}" th:src="@{/images/rooms/suite.jpg}" alt="Suite room interior">
-          <img class="room-detail-photo" th:if="${r.roomType=='Family'}" th:src="@{/images/rooms/family.jpg}" alt="Family room interior">
+          <img class="room-detail-photo" th:if="${r.photoPath != null}" th:src="@{/room-photos/{id}(id=${r.id})}" th:alt="${'Room '+r.roomNumber+' photo'}">
+          <img class="room-detail-photo" th:if="${r.photoPath == null and r.roomType=='Standard'}" th:src="@{/images/rooms/standard.jpg}" alt="Standard room interior">
+          <img class="room-detail-photo" th:if="${r.photoPath == null and r.roomType=='Deluxe'}" th:src="@{/images/rooms/deluxe.jpg}" alt="Deluxe room interior">
+          <img class="room-detail-photo" th:if="${r.photoPath == null and r.roomType=='Suite'}" th:src="@{/images/rooms/suite.jpg}" alt="Suite room interior">
+          <img class="room-detail-photo" th:if="${r.photoPath == null and r.roomType=='Family'}" th:src="@{/images/rooms/family.jpg}" alt="Family room interior">
+          <img class="room-detail-photo" th:if="${r.photoPath == null and r.roomType!='Standard' and r.roomType!='Deluxe' and r.roomType!='Suite' and r.roomType!='Family'}" th:src="@{/images/rooms/standard.jpg}" alt="Room interior placeholder">
           <div class="room-detail-content"><p class="eyebrow" th:text="${r.roomType+' ROOM'}">ROOM TYPE</p><h2 th:text="${'Room '+r.roomNumber}">Room</h2><p class="room-detail-description" th:text="${r.description}">Full room description</p><p class="room-detail-price"><strong th:text="${'₱'+r.nightlyPrice}">₱0</strong><span>per night</span></p>
             <div class="room-amenities"><h3>Room features</h3><ul><li>Air conditioning</li><li>Complimentary Wi-Fi</li><li>Private bathroom</li><li th:if="${r.roomType=='Deluxe'}">Sitting area</li><li th:if="${r.roomType=='Suite'}">Separate lounge area</li><li th:if="${r.roomType=='Family'}">Flexible family sleeping space</li></ul></div>
             <section class="reserved-dates"><h3>Upcoming reserved dates</h3><p class="muted" th:if="${#lists.isEmpty(reservedDates.get(r.id))}">No upcoming reservations are currently listed for these dates.</p><ul th:if="${!#lists.isEmpty(reservedDates.get(r.id))}"><li th:each="date:${reservedDates.get(r.id)}" th:text="${date}">Date range</li></ul><p class="reserved-date-note">Guest details are private. Dates shown may include reservations awaiting manager approval.</p></section>

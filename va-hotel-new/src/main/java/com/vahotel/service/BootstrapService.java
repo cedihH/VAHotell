@@ -33,6 +33,10 @@ public class BootstrapService implements CommandLineRunner {
             seedAccount("online@localhost", "Online Manager", Role.ONLINE_MANAGER);
             seedAccount("onsite@localhost", "On-Site Manager", Role.ONSITE_MANAGER);
             seedAccount("guest@localhost", "Demo Guest", Role.CUSTOMER);
+            seedAccount("demo@localhost", "VA Hotel Demonstrator", Role.CUSTOMER);
+            accounts.findByEmail("demo@localhost").filter(a -> "VA Hotel Demonstrator".equals(a.getFullName())).ifPresent(a -> {
+                if (!a.isEnabled()) { a.setEnabled(true); accounts.save(a); }
+            });
         }
 
         // Seed missing sample rooms individually so existing SQLite files are upgraded too.
