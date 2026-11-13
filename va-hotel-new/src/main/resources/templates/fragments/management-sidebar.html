@@ -1,0 +1,20 @@
+<aside xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="sidebar(active)" class="staff-sidebar">
+  <a class="staff-sidebar-brand" th:href="@{/}"><img class="brand-mark-image" th:src="@{/images/va-hotel-mark.svg}" alt=""><span>VA HOTEL<small>STAFF WORKSPACE</small></span></a>
+  <p class="staff-nav-label">WORKSPACE</p>
+  <nav aria-label="Management workspaces">
+    <a th:href="@{/super-admin/dashboard}" target="_blank" rel="noopener" sec:authorize="hasRole('SUPER_ADMIN')" th:classappend="${active == 'overview' and isSuperAdmin ? ' active' : ''}"><span class="staff-nav-icon">⌂</span>Super Admin overview</a>
+    <a th:href="@{/online-manager/dashboard}" target="_blank" rel="noopener" sec:authorize="hasRole('ONLINE_MANAGER')" th:classappend="${active == 'overview' and isOnlineManager ? ' active' : ''}"><span class="staff-nav-icon">⌂</span>Online manager overview</a>
+    <a th:href="@{/onsite-manager/dashboard}" target="_blank" rel="noopener" sec:authorize="hasRole('ONSITE_MANAGER')" th:classappend="${active == 'overview' and isOnsiteManager ? ' active' : ''}"><span class="staff-nav-icon">⌂</span>Onsite manager overview</a>
+    <a th:href="@{/customer/dashboard}" target="_blank" rel="noopener" sec:authorize="hasRole('CUSTOMER')"><span class="staff-nav-icon">♧</span>Customer portal</a>
+    <a th:href="@{/management/customers}" sec:authorize="hasRole('SUPER_ADMIN')" th:classappend="${active == 'customers' ? ' active' : ''}"><span class="staff-nav-icon">◎</span>Registration review</a>
+    <a th:href="@{/management/managers}" sec:authorize="hasRole('SUPER_ADMIN')" th:classappend="${active == 'managers' ? ' active' : ''}"><span class="staff-nav-icon">♙</span>Manager accounts</a>
+    <a th:href="@{/management/rooms}" th:classappend="${active == 'rooms' ? ' active' : ''}"><span class="staff-nav-icon">▦</span>Room management</a>
+    <a th:href="@{/management/reports}" th:classappend="${active == 'reports' ? ' active' : ''}"><span class="staff-nav-icon">▥</span>Reports and revenue</a>
+    <a th:href="@{/management/history}" th:classappend="${active == 'history' ? ' active' : ''}"><span class="staff-nav-icon">◷</span>Reservation history</a>
+    <a th:href="@{/management/decisions}" sec:authorize="hasAnyRole('ONLINE_MANAGER','ONSITE_MANAGER','SUPER_ADMIN')" th:classappend="${active == 'decisions' ? ' active' : ''}"><span class="staff-nav-icon">✓</span>Manager decision history</a>
+    <a th:href="@{/management/payments}" th:classappend="${active == 'payments' ? ' active' : ''}"><span class="staff-nav-icon">₱</span>Payment records</a>
+    <a th:href="@{/management/reservations}" sec:authorize="hasRole('SUPER_ADMIN')" th:classappend="${active == 'reservations' ? ' active' : ''}"><span class="staff-nav-icon">✓</span>Reservation approvals</a>
+    <a th:href="@{/management/walkins}" sec:authorize="hasRole('ONSITE_MANAGER')" th:classappend="${active == 'walkins' ? ' active' : ''}"><span class="staff-nav-icon">＋</span>Walk-in booking</a>
+  </nav>
+  <div class="staff-sidebar-footer"><span>Signed in as</span><strong sec:authentication="name">Staff</strong><form method="post" th:action="@{/logout}"><button class="button secondary small" type="submit">Sign out</button></form></div>
+</aside>

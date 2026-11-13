@@ -13,7 +13,7 @@
     <div class="chat-messages" data-chat-messages role="log" aria-live="polite"><p class="chat-message assistant-message">Hello! Ask me about room types, listed prices, reservations, or simulated payments.</p></div>
     <form method="post" th:action="@{/chatbot}" data-chat-form data-no-action-toast="true">
       <label class="sr-only" for="hotel-chat-question">Your question</label>
-      <textarea id="hotel-chat-question" name="question" rows="2" maxlength="1000" required placeholder="Type your question…"></textarea>
+      <textarea id="hotel-chat-question" name="question" rows="2" maxlength="1000" required placeholder="e.g. What room types can I book?"></textarea>
       <button class="button" type="submit">Send</button>
     </form>
     <p class="chat-panel-footnote">The assistant cannot see private booking records or guarantee live availability.</p>

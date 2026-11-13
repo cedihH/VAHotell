@@ -6,16 +6,17 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <script th:src="@{/js/ui.js}" defer></script>
 </head>
-<body>
-<header class="nav no-print"><a class="brand" th:href="@{/}">VA HOTEL</a><nav><a th:href="@{/management/reports}">Reports</a><a th:href="@{/management/payments}">Payments</a></nav><form method="post" th:action="@{/logout}"><button class="button small">Logout</button></form></header>
-<main class="page-wrap">
+<body class="staff-body">
+
+<div class="staff-layout"><aside th:replace="~{fragments/management-sidebar :: sidebar('reports')}"></aside><main class="staff-main">
   <section class="report-heading">
-    <div><p class="eyebrow">MANAGEMENT OVERVIEW</p><h1 class="page-title">Reports and <em>revenue.</em></h1><p class="lead">Six-month net simulated revenue. Refunds are subtracted from the month the payment was recorded.</p></div>
-    <button class="button no-print" type="button" data-print-page>Print report</button>
+    <div><p class="eyebrow">MANAGEMENT OVERVIEW</p><h1 class="page-title">Reports and <em>revenue.</em></h1><p class="lead">Explore simulated net revenue by day, week, month, or year.</p></div>
+    <div class="staff-action-row no-print"><a class="button secondary" th:href="@{/management/reports.csv}">Reservations CSV ↓</a><a class="button secondary" th:href="@{/management/revenue.csv}">Payments CSV ↓</a><button class="button" type="button" data-print-page>Print report</button></div>
   </section>
   <section class="revenue-panel" aria-labelledby="revenue-title">
-    <div class="revenue-summary"><div><p class="eyebrow">LAST SIX MONTHS</p><h2 id="revenue-title" th:text="${'₱'+#numbers.formatDecimal(revenueTotal,1,'COMMA',2,'POINT')}">₱0.00</h2><p class="muted" th:text="${paymentCount+' recorded payment transactions'}">0 recorded payment transactions</p></div><div class="revenue-key"><span></span>Net simulated revenue</div></div>
-    <div class="revenue-chart" role="img" aria-label="Net revenue by month for the last six months">
+    <div class="revenue-summary"><div><p class="eyebrow" th:text="${periodRange}">Last 12 months</p><h2 id="revenue-title" th:text="${'₱'+#numbers.formatDecimal(revenueTotal,1,'COMMA',2,'POINT')}">₱0.00</h2><p class="muted" th:text="${paymentCount+' recorded payment transactions in this range'}">0 recorded payment transactions</p></div><div class="revenue-key"><span></span>Net simulated revenue</div></div>
+    <form class="report-period-filter no-print" method="get" th:action="@{/management/reports}"><label for="revenue-period">Group revenue by<select id="revenue-period" name="period"><option value="day" th:selected="${period=='day'}">Day · 7 days</option><option value="week" th:selected="${period=='week'}">Week · 12 weeks</option><option value="month" th:selected="${period=='month'}">Month · 12 months</option><option value="year" th:selected="${period=='year'}">Year · 5 years</option></select></label><button class="button secondary" type="submit">Apply</button></form>
+    <div class="revenue-chart" role="group" tabindex="0" th:attr="aria-label=${'Net revenue '+periodRange}" th:style="${'grid-template-columns:repeat('+chartColumns+',minmax(50px,1fr))'}">
       <div class="revenue-month" th:each="point:${revenueChart}">
         <strong class="revenue-value" th:text="${'₱'+#numbers.formatDecimal(point.amount,1,'COMMA',0,'POINT')}">₱0</strong>
         <div class="revenue-track"><div class="revenue-bar" th:style="${'height:'+point.height+'%'}"></div></div>
@@ -35,6 +36,6 @@
       <form class="no-print" method="post" th:action="@{/management/reports/{id}/reply(id=${r.id})}"><label>Manager reply<textarea name="reply" rows="3" maxlength="2000" required></textarea></label><button class="button" type="submit">Send reply and resolve</button></form>
     </article>
   </section>
-</main>
+</main></div>
 </body>
 </html>
