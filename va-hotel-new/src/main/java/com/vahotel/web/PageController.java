@@ -65,8 +65,10 @@ public class PageController {
     }
 
     @GetMapping("/login")
-    public String login(@RequestParam(defaultValue = "false") boolean customer, Model model) {
+    public String login(@RequestParam(defaultValue = "false") boolean customer, Model model,
+                        com.vahotel.config.CaptchaService captcha) {
         model.addAttribute("customerPortal", customer);
+        model.addAttribute("captchaEnforced", captcha.isEnforced());
         return "login";
     }
 
